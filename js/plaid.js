@@ -1,8 +1,6 @@
 //Setup
 var scene, camera, renderer;
 
-init();
-
 //Scene setup
 function init()
 {
@@ -27,14 +25,17 @@ function init()
 	camera.lookAt( scene.position ); //Camera always looks at origin
 
 	//Add some ambient light
-	var ambient = new THREE.AmbientLight( 0x404040 );
+	var ambient = new THREE.AmbientLight( 0x404040, 5 );
 	scene.add( ambient );
 
 	render();
 }
 
+	//Initialise 
+	init();
 
 
+	//Lay tiles for an n*n game board 
 	var n = 10;
 
 	for(var i = -n/2 * 10; i < n/2*10; i += 10)
@@ -58,16 +59,17 @@ function layTile(x,y)
 	//Create a tile 
 	var geometry = new THREE.BoxGeometry( 10, 2, 10 );
 
-	var col = [0x00ff00, 0x00fff0];
+	//Randomly pick a colour 
+	var col = [ 0x0077be, 0x228b22 ];
+	var thiscol = Math.floor( Math.random() * 2 );
 
-	var thiscol = Math.floor(Math.random() * 2);
-
-	var material = new THREE.MeshLambertMaterial( {color:col[thiscol] } );
+	//Make the tile 
+	var material = new THREE.MeshLambertMaterial( { color: col[ thiscol ] } );
 	var baseTile = new THREE.Mesh( geometry, material );
 	
 	//Place it in the scene 
 	scene.add( baseTile );
-	baseTile.position.set(x,0,y);
+	baseTile.position.set( x, 0, y );
 }
 
 
