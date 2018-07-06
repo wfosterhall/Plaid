@@ -44,6 +44,7 @@ function init()
 	function ( geometry, materials ) {
 		var material = materials[ 0 ];
 		tree = new THREE.Mesh( geometry, material );
+		createMap();
 	},
 
 	// onProgress callback
@@ -64,6 +65,12 @@ function init()
 
 	//Lay tiles for an n*n game board 
 
+
+	render();
+}
+
+function createMap() {
+
 	var n = 10;
 
 	for (var i = - n/2 * 10; i < n/2 * 10; i += 10)
@@ -75,9 +82,6 @@ function init()
 
 		}
 	}
-
-
-	render();
 }
 
 //Lay down base tiles 
@@ -98,7 +102,7 @@ function layTile(x,y)
 
 		var newTree = tree.clone();
 
-		newTree.position.set(( x, 0, y );
+		newTree.position.set( x, 0, y );
 
 		trees.push(newTree);
 
@@ -117,13 +121,12 @@ function layTile(x,y)
 //Draw/render the scene on the canvas 
 function render()
 {
-	//requestAnimationFrame(render);
+	requestAnimationFrame(render);
 	renderer.render( scene, camera );
 };
 
 var mainLoop = function()
 {
-
 	render();
 }
 
@@ -133,9 +136,6 @@ var mainLoop = function()
 	
 //Initialise scene 
 init();
-
-
-
 
 
 mainLoop();
