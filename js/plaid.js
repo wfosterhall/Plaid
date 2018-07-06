@@ -30,19 +30,10 @@ function init()
 	var ambient = new THREE.AmbientLight( 0x404040 );
 	scene.add( ambient );
 
-	// //Controls 
-	// var controls = new THREE.OrbitControls( camera );
-
 	render();
 }
 
-	console.log("Starting");
 
-	// //Lay down a grid 
-	// var gridSize = 10;
-	// var gridDiv = 10;
-	// var gridHelper = new THREE.GridHelper( gridSize, gridDiv );
-	// scene.add( gridHelper );
 
 	var n = 10;
 
