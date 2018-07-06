@@ -31,27 +31,6 @@ function init()
 	render();
 }
 
-	//Initialise 
-	init();
-
-
-	//Lay tiles for an n*n game board 
-	var n = 10;
-
-	for(var i = -n/2 * 10; i < n/2*10; i += 10)
-	{
-		for(var j = -n/2*10; j < n/2*10; j +=10 )
-		{
-
-			layTile(i,j);
-
-		}
-	}
-
-
-
-
-
 //Lay down base tiles 
 function layTile(x,y)
 {
@@ -85,5 +64,28 @@ var mainLoop = function()
 
 	render();
 }
+
+//////////////////////////////////////
+////////////MAIN SECTION//////////////
+//////////////////////////////////////
+	
+//Initialise scene 
+init();
+
+//Lay tiles for an n*n game board 
+var n = 10;
+
+for(var i = -n/2 * 10; i < n/2*10; i += 10)
+{
+	for(var j = -n/2*10; j < n/2*10; j +=10 )
+	{
+
+		layTile(i,j);
+
+	}
+}
+
+
+
 
 mainLoop();
