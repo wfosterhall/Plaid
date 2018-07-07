@@ -104,7 +104,7 @@ function layTile(x,y)
 
 
 	//add a tree
-	if ( val < 0.7) {
+	if ( val > 0.7) {
 
 		var newTree = tree.clone();
 
