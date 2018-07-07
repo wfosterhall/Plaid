@@ -41,10 +41,16 @@ function init()
 	'resources/tree.gltf',
 
 	// onLoad callback
-	function ( geometry, materials ) {
-		var material = materials[ 0 ];
-		tree = new THREE.Mesh( geometry, material );
-		createMap();
+	function ( gltf ) {
+
+		//scene.add( gltf.scene.children[0] );
+
+		console.log(gltf.scene.children);
+		//console.log(JSON.Stringify(gltf));
+		//console.log(gltf.scene);
+		// var material = materials[ 0 ];
+		 tree =  gltf.scene.children[0]//new THREE.Mesh( geometry, material );
+		 createMap();
 	},
 
 	// onProgress callback
@@ -104,7 +110,11 @@ function layTile(x,y)
 
 		newTree.position.set( x, 0, y );
 
+		scene.add(newTree);
+
 		trees.push(newTree);
+
+		console.log(newTree);
 
 	}
 
