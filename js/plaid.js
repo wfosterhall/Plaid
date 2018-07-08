@@ -3,22 +3,28 @@ var scene, camera, renderer;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-var mapsize = 10;
+const MAPSIZE = 10;
+const MAXSPEED = 5;
 
 var tree;
-
 var trees = [];
 
 var lumberjack; //to store our character object
+
+var vel = [0, 0, 0]; //store our chars movement, might want to move this into object later
 
 var money = 0;
 var wood = 0;
 var environment = 0;
 
+var prevtime = 0;
 
-	init();
+//trying to make man move in both directions at once
+//will write a keymap so we can detect whats happening at what time;
+var keymap = {};
 
-	render();
+
+init();
 
 
 //might want to split init into scene setup and model loading etc 
@@ -27,6 +33,10 @@ function init()
 {
 	//Create a scene
 	scene = new THREE.Scene();
+
+	document.addEventListener("keydown", onKeyDown, false);
+	document.addEventListener("keyup", onKeyUp, false);
+
 
 	//add in a scene loader at some point, or just list of scene sizes for game
 
@@ -40,27 +50,32 @@ function init()
 	renderer.setClearColor (0x0077be, 1);
 	document.body.appendChild( renderer.domElement );
 
+
+////////////////////////////////////////////
+/*                CAMERAS                 */
+////////////////////////////////////////////
+
 	//Camera
 	cameraP = new THREE.PerspectiveCamera( 45, width/height, 0.1, 500 );
 	cameraO = new THREE.OrthographicCamera( zoom * width / - 1.5, zoom * width / 1.5, zoom * height / 1.5, zoom * height / - 1.5, 1, 1000 );
 	
+
+	//Adjust Ocamera, set up isometric view
+	var camDist = MAPSIZE * 10;
+
+	cameraP.position.set( camDist, camDist, camDist ); //Camera equal distance away
+	cameraP.lookAt( scene.position ); //Camera always looks at origin
+
+
+	//Adjust Pcamera, set up isometric view
+	var camDist = MAPSIZE * 10;
+
+	cameraO.position.set( camDist, camDist, camDist ); //Camera equal distance away
+	cameraO.lookAt( scene.position ); //Camera always looks at origin
+
+
 	camera = cameraP;
 	scene.add( camera ); 
-
-	//Adjust camera, set up isometric view
-	var camDist = mapsize * 10;
-
-	camera.position.set( camDist, camDist, camDist ); //Camera equal distance away
-	camera.lookAt( scene.position ); //Camera always looks at origin
-
-	//Add some ambient light
-	var ambient = new THREE.AmbientLight( 0x404040, 5 );
-	scene.add( ambient );
-
-	//add directional light
-	var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	directionalLight.position.set(0, 10, 10);
-	scene.add( directionalLight );
 
 	//Add camera toggle instructions
 	container = document.createElement( 'div' );
@@ -72,6 +87,27 @@ function init()
 	info.style.textAlign = 'center';
 	info.innerHTML = 'O: Orthographic P: Perspective';
 	container.appendChild( info );
+
+
+////////////////////////////////////////////
+/*                 LIGHTS                 */
+////////////////////////////////////////////
+
+
+	//Add some ambient light
+	var ambient = new THREE.AmbientLight( 0x404040, 5 );
+	scene.add( ambient );
+
+	//add directional light
+	var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	directionalLight.position.set(0, 10, 10);
+	scene.add( directionalLight );
+
+
+
+////////////////////////////////////////////
+/*                OBJECTS                 */
+////////////////////////////////////////////
 
 	//load our objects
 	var loader = new THREE.GLTFLoader();
@@ -101,13 +137,17 @@ function init()
 	}
 	);
 
+	//finally start render loop after everything is done
+
+	render();
+
 }
 
 function createMap() {
 
 	//Lay tiles for an n*n game board 
 
-	var n = mapsize;
+	var n = MAPSIZE;
 
 	for (var i = - n/2 * 10; i < n/2 * 10; i += 10)
 	{
@@ -127,7 +167,7 @@ function createMap() {
 
 	lumberjack = new THREE.Mesh( geometry, material );
 
-	lumberjack.position.set(0, 2, ( n/2 - 1 )* 10);
+	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
 	scene.add( lumberjack );
 
 }
@@ -152,7 +192,7 @@ function layTile(x,y)
 
 		trees.push(newTree);
 
-		console.log(newTree);
+		//console.log(newTree);
 
 	}
 
@@ -175,70 +215,6 @@ function render()
 	requestAnimationFrame(render);
 
 	//User input 
-	document.addEventListener("keydown", onDocumentKeyDown, false);
-	
-		function onDocumentKeyDown(event) 
-		{
-		    var keyCode = event.which;
-
-		    //Lumberjack movement speed 
-		    var speed = 0.01;
-
-		    //Toggle view 
-	
-			    //Push O for orthographic 
-			    if (keyCode == 79) 
-			    {
-			        camera = cameraO;
-			    } 
-
-			    //Push P for perspective 
-			    if (keyCode == 80) 
-			    {
-			        camera = cameraP;
-			    } 
-
-			//Lumberjack Controls 
-	
-			    //Push W
-				if (keyCode == 87) 
-			    {
-			        lumberjack.position.z -= speed;
-			    } 
-			    
-			    //Push A
-				if (keyCode == 65) 
-			    {
-			        lumberjack.position.x -= speed;
-			    } 
-
-			    //Push S
-				if (keyCode == 83) 
-			    {
-			        lumberjack.position.z += speed;
-			    } 
-
-			    //Push D
-				if (keyCode == 68) 
-			    {
-			        lumberjack.position.x += speed;
-			    } 
-
-				//Push J
-				if (keyCode == 74) 
-			    {
-			    	for(var i=0; i<10; i++)
-			    	{	
-			    		setTimeout(function(){lumberjack.position.y -= 0.001; }, 300);
-			        	i++;
-			    	}
-			    	for(var i=0; i<10; i++)
-			    	{
-						lumberjack.position.y += 0.05 ;
-						i++;
-			    	}
-			    } 
-		}
 	renderer.render( scene, camera );
 
 	//perform loop here
@@ -250,4 +226,168 @@ function render()
 
 	//should just have to use char.position.set to change the characters position, this can be done down below i think, might want to use callbacks later idk.
 
+	//simple dt calculation
+	var dt = 0;
+	var time = performance.now();
+    if (prevtime) {
+        dt = (time - prevtime)/1000;
+    }
+    prevtime = time;
+
+
+    //have temporarily changed this to debug
+	update(0.1);
+
 };
+
+
+function update(dt) {
+
+	//console.log(dt);
+
+	//easier to have an update function to manage movement independently of keystrokes
+	
+
+	//movement is a bit jerky, fix this up
+	//needs to be precise
+
+
+	//apply velocities
+	lumberjack.position.x += vel[0] * dt;
+	lumberjack.position.y += vel[1] * dt;
+	lumberjack.position.z += vel[2] * dt;
+
+	//dampen movement
+
+	if (vel[0] > 0) {
+		vel[0] -= 0.1 * vel[0]; 
+	}
+	
+	if (vel[0] < 0) {
+		vel[0] += 0.1; 
+	}
+
+
+	if (vel[2] > 0) {
+		vel[2] -= 0.1; 
+	}
+	
+	if (vel[2] < 0) {
+		vel[2] += 0.1; 
+	}
+
+	//assume + is movement upwards
+	if (vel[1] != 0) {
+		vel[1] -= 10 * dt; 
+	}
+
+	//place constraints
+
+	if (vel[0] > MAXSPEED) {
+
+		vel[0] = MAXSPEED;
+
+	}
+
+	if (vel[0] < - MAXSPEED) {
+
+		vel[0] = -MAXSPEED;
+	}
+
+	if (vel[2] > MAXSPEED) {
+
+		vel[2] = MAXSPEED;
+
+	}
+
+	if (vel[2] < - MAXSPEED) {
+	
+		vel[2] = -MAXSPEED;
+
+	}
+
+
+	//remove small error amount
+
+	//2 is our ground plane, maybe change to 0?
+	if (lumberjack.position.y < 4.5) {
+
+		vel[1] = 0;
+
+		lumberjack.position.y = 4.5;
+
+	}
+
+}
+
+function onKeyUp(event) 
+{
+
+	var keyCode = event.which;
+	keymap[keyCode] = false;
+
+}
+	
+function onKeyDown(event) 
+{
+	console.log(keymap);
+	var keyCode = event.which;
+
+	//Lumberjack movement speed 
+	var speed = 6;
+
+	//Toggle view 
+
+    //Push O for orthographic 
+    if (keyCode == 79) 
+    {
+        camera = cameraO;
+    } 
+
+    //Push P for perspective 
+    if (keyCode == 80) 
+    {
+        camera = cameraP;
+    } 
+
+	//Lumberjack Controls 
+
+    //Push W
+	if (keyCode == 87 || keymap[87]) 
+    {
+    	keymap[87] = true;
+        vel[2] -= speed;
+    } 
+    
+    //Push A
+	if (keyCode == 65 || keymap[65]) 
+    {
+    	keymap[65] = true;
+        vel[0] -= speed;
+    } 
+
+    //Push S
+	if (keyCode == 83 || keymap[83]) 
+    {
+    	keymap[83] = true;
+        vel[2] += speed;
+    } 
+
+    //Push D
+	if (keyCode == 68 || keymap[68]) 
+    {
+    	keymap[68] = true;
+        vel[0] += speed;
+    } 
+
+    //change to space?
+	//Push J
+	if (keyCode == 74 || keymap[74]) 
+    {
+    	keymap[74] = true;
+    	//check if double jump
+    	if (vel[1] == 0) {
+    		vel[1] = 10;
+    	}
+    } 
+}
