@@ -380,11 +380,12 @@ function onKeyDown(event)
         vel[0] += speed;
     } 
 
-    //change to space?
-	//Push J
-	if (keyCode == 74 || keymap[74]) 
+	//Push SPACE
+	//what goes up must come down, but this doesn't....
+	if (keyCode == 32 || keymap[32]) 
     {
-    	keymap[74] = true;
+    	keymap[32] = true;
+    	
     	//check if double jump
     	if (vel[1] == 0) {
     		vel[1] = 10;
