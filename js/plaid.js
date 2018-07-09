@@ -14,6 +14,7 @@ var lumberjack; //to store our character object
 var vel = [0, 0, 0]; //store our chars movement, might want to move this into object later
 
 var isGrounded; //storing our chars status
+var isFalling;
 
 var money = 0;
 var wood = 0;
@@ -173,6 +174,7 @@ function createMap() {
 
 	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
 	isGrounded = true;
+	isFalling = false;
 	scene.add( lumberjack );
 
 }
@@ -196,8 +198,6 @@ function layTile(x,y)
 		scene.add(newTree);
 
 		trees.push(newTree);
-
-		//console.log(newTree);
 
 	}
 
@@ -259,6 +259,12 @@ function update(dt) {
 	//movement is a bit jerky, fix this up
 	//needs to be precise
 
+	//check if on the map
+	if (lumberjack.position.x > MAPSIZE * 5 || lumberjack.position.x < -MAPSIZE * 5 || lumberjack.position.z > MAPSIZE * 5 || lumberjack.position.z < -MAPSIZE * 5)
+	{
+		isGrounded = false;
+		isFalling = true;
+	}
 
 	//apply velocities
 	lumberjack.position.x += vel[0] * dt;
@@ -268,7 +274,7 @@ function update(dt) {
 	//dampen movement
 
 	if (vel[0] > 0) {
-		vel[0] -= 0.5;// * vel[0]; 
+		vel[0] -= 0.5;
 	}
 	
 	if (vel[0] < 0) {
@@ -285,7 +291,7 @@ function update(dt) {
 	}
 
 	//assume + is movement upwards
-	if (lumberjack.position.y != 4.5) {
+	if (!isGrounded) {
 		vel[1] -= 10 * dt; 
 	}
 
@@ -318,7 +324,7 @@ function update(dt) {
 	//remove small error amount
 
 	//2 is our ground plane, maybe change to 0?
-	if (lumberjack.position.y < 4.5) {
+	if (lumberjack.position.y < 4.5 && !isFalling) {
 
 		vel[1] = 0;
 
@@ -326,6 +332,12 @@ function update(dt) {
 
 		lumberjack.position.y = 4.5;
 
+	}
+
+	if (isFalling && lumberjack.position.y < -1000) {
+
+		isFalling = false;
+		lumberjack.position.set(0, 4.5, ( MAPSIZE/2 - 1 )* 10);
 	}
 
 }
