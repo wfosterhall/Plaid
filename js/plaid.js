@@ -3,7 +3,7 @@ var scene, camera, renderer;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAPSIZE = 10;
+const MAPSIZE = 3;
 const MAXSPEED = 5;
 
 var tree;
@@ -12,6 +12,8 @@ var trees = [];
 var lumberjack; //to store our character object
 
 var vel = [0, 0, 0]; //store our chars movement, might want to move this into object later
+
+var isGrounded; //storing our chars status
 
 var money = 0;
 var wood = 0;
@@ -23,6 +25,8 @@ var prevtime = 0;
 //will write a keymap so we can detect whats happening at what time;
 var keymap = {};
 
+
+//var levels = [3, 5, 10, 20];
 
 init();
 
@@ -168,6 +172,7 @@ function createMap() {
 	lumberjack = new THREE.Mesh( geometry, material );
 
 	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
+	isGrounded = true;
 	scene.add( lumberjack );
 
 }
@@ -229,9 +234,11 @@ function render()
 	//simple dt calculation
 	var dt = 0;
 	var time = performance.now();
+
     if (prevtime) {
         dt = (time - prevtime)/1000;
     }
+
     prevtime = time;
 
 
@@ -247,6 +254,7 @@ function update(dt) {
 
 	//easier to have an update function to manage movement independently of keystrokes
 	
+	JackControls();
 
 	//movement is a bit jerky, fix this up
 	//needs to be precise
@@ -260,24 +268,24 @@ function update(dt) {
 	//dampen movement
 
 	if (vel[0] > 0) {
-		vel[0] -= 0.1 * vel[0]; 
+		vel[0] -= 0.5;// * vel[0]; 
 	}
 	
 	if (vel[0] < 0) {
-		vel[0] += 0.1; 
+		vel[0] += 0.5; 
 	}
 
 
 	if (vel[2] > 0) {
-		vel[2] -= 0.1; 
+		vel[2] -= 0.5; 
 	}
 	
 	if (vel[2] < 0) {
-		vel[2] += 0.1; 
+		vel[2] += 0.5; 
 	}
 
 	//assume + is movement upwards
-	if (vel[1] != 0) {
+	if (lumberjack.position.y != 4.5) {
 		vel[1] -= 10 * dt; 
 	}
 
@@ -314,6 +322,8 @@ function update(dt) {
 
 		vel[1] = 0;
 
+		isGrounded = true;
+
 		lumberjack.position.y = 4.5;
 
 	}
@@ -324,6 +334,9 @@ function onKeyUp(event)
 {
 
 	var keyCode = event.which;
+
+	console.log(keyCode);
+
 	keymap[keyCode] = false;
 
 }
@@ -332,9 +345,6 @@ function onKeyDown(event)
 {
 	console.log(keymap);
 	var keyCode = event.which;
-
-	//Lumberjack movement speed 
-	var speed = 6;
 
 	//Toggle view 
 
@@ -350,45 +360,80 @@ function onKeyDown(event)
         camera = cameraP;
     } 
 
+    //Lumberjack Controls 
+
+    //Push W
+	if (keyCode == 87) 
+    {
+    	keymap[87] = true;
+    } 
+    
+    //Push A
+	if (keyCode == 65) 
+    {
+    	keymap[65] = true;
+    } 
+
+    //Push S
+	if (keyCode == 83) 
+    {
+    	keymap[83] = true;
+    } 
+
+    //Push D
+	if (keyCode == 68) 
+    {
+    	keymap[68] = true;
+    } 
+
+	//Push SPACE
+	if (keyCode == 32) 
+    {
+    	keymap[32] = true;
+    }
+
+}
+
+function JackControls () {
+
+	//Lumberjack movement speed 
+	var speed = 2;
+
 	//Lumberjack Controls 
 
     //Push W
-	if (keyCode == 87 || keymap[87]) 
+	if (keymap[87]) 
     {
-    	keymap[87] = true;
         vel[2] -= speed;
     } 
     
     //Push A
-	if (keyCode == 65 || keymap[65]) 
+	if (keymap[65]) 
     {
-    	keymap[65] = true;
         vel[0] -= speed;
     } 
 
     //Push S
-	if (keyCode == 83 || keymap[83]) 
+	if (keymap[83]) 
     {
-    	keymap[83] = true;
         vel[2] += speed;
     } 
 
     //Push D
-	if (keyCode == 68 || keymap[68]) 
+	if (keymap[68]) 
     {
-    	keymap[68] = true;
         vel[0] += speed;
     } 
 
 	//Push SPACE
 	//what goes up must come down, but this doesn't....
-	if (keyCode == 32 || keymap[32]) 
-    {
-    	keymap[32] = true;
-    	
+	if (keymap[32]) 
+    {    	
     	//check if double jump
-    	if (vel[1] == 0) {
+    	if (isGrounded) {
     		vel[1] = 10;
+    		isGrounded = false;
     	}
-    } 
+    }
+
 }
