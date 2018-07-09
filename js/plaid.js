@@ -4,8 +4,8 @@ var backgroundMusic;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAPSIZE = 20;
-const MAXSPEED = 5;
+const MAP_SIZE = 4;
+const MAX_SPEED = 5;
 
 var tree;
 var trees = [];
@@ -21,6 +21,8 @@ var money = 0;
 var wood = 0;
 var environment = 0;
 
+var map = [];
+
 var prevtime = 0;
 
 //trying to make man move in both directions at once
@@ -28,6 +30,10 @@ var prevtime = 0;
 var keymap = {};
 
 var mute = true;
+
+var loadingCounter = 0;
+
+const LOAD_MAX = 2; //change for how many objects we have to load 
 
 
 //var levels = [3, 5, 10, 20];
@@ -69,14 +75,14 @@ function init()
 	
 
 	//Adjust Ocamera, set up isometric view
-	var camDist = MAPSIZE * 10;
+	var camDist = MAP_SIZE * 10;
 
 	cameraP.position.set( camDist, camDist, camDist ); //Camera equal distance away
 	cameraP.lookAt( scene.position ); //Camera always looks at origin
 
 
 	//Adjust Pcamera, set up isometric view
-	var camDist = MAPSIZE * 10;
+	var camDist = MAP_SIZE * 10;
 
 	cameraO.position.set( camDist, camDist, camDist ); //Camera equal distance away
 	cameraO.lookAt( scene.position ); //Camera always looks at origin
@@ -138,6 +144,7 @@ function init()
 		function ( audioBuffer ) {
 			// set the audio object buffer to the loaded object
 			backgroundMusic.setBuffer( audioBuffer );
+			loadingCounter++;
 		},
 
 		// onProgress callback
@@ -148,6 +155,7 @@ function init()
 		// onError callback
 		function ( err ) {
 			console.log( 'An error happened' );
+			loadingCounter = -1;
 		}
 	);
 
@@ -168,9 +176,7 @@ function init()
 
 		console.log(gltf.scene.children);
 		tree = gltf.scene.children[0];
-
-		//this is messy i dont like this, replace with counter and loop until loaded
-		createMap();
+		loadingCounter++;
 	},
 
 	// onProgress callback
@@ -181,27 +187,48 @@ function init()
 	// onError callback
 	function( err ) {
 		console.log( 'An error occured' );
+		loadingCounter = -1;
 	}
 	);
 
-	//finally start render loop after everything is done
+	//wait until loaded
 
-	render();
+	var loadingHandle = setInterval(function() {
 
+		console.log("Loading...")
+
+		if (loadingCounter >= LOAD_MAX) {
+
+			console.log("LOADING COMPLETE!")
+			clearInterval(loadingHandle);
+
+			createMap();
+			render();
+		}
+
+
+		if (loadingCounter < 0) {
+			console.log("Error Loading");
+		}
+
+
+	}, 50);
 }
 
 function createMap() {
 
 	//Lay tiles for an n*n game board 
 
-	var n = MAPSIZE;
-
-	for (var i = - n/2 * 10; i < n/2 * 10; i += 10)
+	for (var j = 0; j < MAP_SIZE; j++)
 	{
-		for (var j = - n/2 * 10; j < n/2 * 10; j += 10 )
+		for (var i = 0; i < MAP_SIZE; i++ )
 		{
 
-			layTile(i,j);
+			var val = Math.floor( Math.random() * 2 );
+
+			map[j * MAP_SIZE + i] = val;
+
+			layTile(i,j,val);
 
 		}
 	}
@@ -214,7 +241,7 @@ function createMap() {
 
 	lumberjack = new THREE.Mesh( geometry, material );
 
-	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
+	lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
 	isGrounded = true;
 	isFalling = false;
 	scene.add( lumberjack );
@@ -222,10 +249,12 @@ function createMap() {
 }
 
 //Lay down base tiles 
-function layTile(x,y)
+function layTile(x, y, val)
 {
 
-	var val = Math.floor( Math.random() * 2 );
+
+	x = (x - MAP_SIZE/2 ) * 10;
+	y = (y - MAP_SIZE/2 ) * 10;
 
 	//Randomly pick a colour 
 	var col = [ 0x228b22, 0x016c02 ];
@@ -303,7 +332,7 @@ function update(dt) {
 	//needs to be precise
 
 	//check if on the map
-	if (lumberjack.position.x > MAPSIZE * 5 || lumberjack.position.x < -MAPSIZE * 5 || lumberjack.position.z > MAPSIZE * 5 || lumberjack.position.z < -MAPSIZE * 5)
+	if (lumberjack.position.x > MAP_SIZE * 5 || lumberjack.position.x < -MAP_SIZE * 5 || lumberjack.position.z > MAP_SIZE * 5 || lumberjack.position.z < -MAP_SIZE * 5)
 	{
 		isGrounded = false;
 		isFalling = true;
@@ -340,26 +369,26 @@ function update(dt) {
 
 	//place constraints
 
-	if (vel[0] > MAXSPEED) {
+	if (vel[0] > MAX_SPEED) {
 
-		vel[0] = MAXSPEED;
-
-	}
-
-	if (vel[0] < - MAXSPEED) {
-
-		vel[0] = -MAXSPEED;
-	}
-
-	if (vel[2] > MAXSPEED) {
-
-		vel[2] = MAXSPEED;
+		vel[0] = MAX_SPEED;
 
 	}
 
-	if (vel[2] < - MAXSPEED) {
+	if (vel[0] < - MAX_SPEED) {
+
+		vel[0] = -MAX_SPEED;
+	}
+
+	if (vel[2] > MAX_SPEED) {
+
+		vel[2] = MAX_SPEED;
+
+	}
+
+	if (vel[2] < - MAX_SPEED) {
 	
-		vel[2] = -MAXSPEED;
+		vel[2] = -MAX_SPEED;
 
 	}
 
@@ -380,7 +409,7 @@ function update(dt) {
 	if (isFalling && lumberjack.position.y < -1000) {
 
 		isFalling = false;
-		lumberjack.position.set(0, 4.5, ( MAPSIZE/2 - 1 )* 10);
+		lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
 	}
 
 }
