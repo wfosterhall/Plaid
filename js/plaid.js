@@ -3,7 +3,7 @@ var scene, camera, renderer;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAPSIZE = 3;
+const MAPSIZE = 20;
 const MAXSPEED = 5;
 
 var tree;
@@ -61,7 +61,7 @@ function init()
 ////////////////////////////////////////////
 
 	//Camera
-	cameraP = new THREE.PerspectiveCamera( 45, width/height, 0.1, 500 );
+	cameraP = new THREE.PerspectiveCamera( 45, width/height, 0.1, 1000 );
 	cameraO = new THREE.OrthographicCamera( zoom * width / - 1.5, zoom * width / 1.5, zoom * height / 1.5, zoom * height / - 1.5, 1, 1000 );
 	
 
@@ -105,7 +105,7 @@ function init()
 
 	//add directional light
 	var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	directionalLight.position.set(0, 10, 10);
+	directionalLight.position.set( 0, 10, 10 );
 	scene.add( directionalLight );
 
 
