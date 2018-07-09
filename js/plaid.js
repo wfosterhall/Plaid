@@ -1,5 +1,6 @@
 //Setup
 var scene, camera, renderer;
+var backgroundMusic;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
@@ -25,6 +26,8 @@ var prevtime = 0;
 //trying to make man move in both directions at once
 //will write a keymap so we can detect whats happening at what time;
 var keymap = {};
+
+var mute = true;
 
 
 //var levels = [3, 5, 10, 20];
@@ -78,7 +81,6 @@ function init()
 	cameraO.position.set( camDist, camDist, camDist ); //Camera equal distance away
 	cameraO.lookAt( scene.position ); //Camera always looks at origin
 
-
 	camera = cameraP;
 	scene.add( camera ); 
 
@@ -90,7 +92,7 @@ function init()
 	info.style.top = '30px';
 	info.style.width = '100%';
 	info.style.textAlign = 'center';
-	info.innerHTML = 'O: Orthographic P: Perspective';
+	info.innerHTML = 'O: Orthographic P: Perspective 0: Toggle Music';
 	container.appendChild( info );
 
 
@@ -108,6 +110,46 @@ function init()
 	directionalLight.position.set( 0, 10, 10 );
 	scene.add( directionalLight );
 
+////////////////////////////////////////////
+/*                 AUDIO                  */
+////////////////////////////////////////////
+
+	// instantiate a listener
+	var audioListener = new THREE.AudioListener();
+
+	// add the listener to the camera
+	camera.add( audioListener );
+
+	// instantiate audio object
+	backgroundMusic = new THREE.Audio( audioListener );
+
+	// add the audio object to the scene
+	scene.add( backgroundMusic );
+
+	// instantiate a loader
+	var loader = new THREE.AudioLoader();
+
+	// load a resource
+	loader.load(
+		// resource URL
+		'resources/backgroundMusic.mp3',
+
+		// onLoad callback
+		function ( audioBuffer ) {
+			// set the audio object buffer to the loaded object
+			backgroundMusic.setBuffer( audioBuffer );
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function ( err ) {
+			console.log( 'An error happened' );
+		}
+	);
 
 
 ////////////////////////////////////////////
@@ -192,6 +234,7 @@ function layTile(x,y)
 	if ( val > 0.7) {
 
 		var newTree = tree.clone();
+		newTree.scale.y = 2;
 
 		newTree.position.set( x, 2, y );
 
@@ -404,6 +447,21 @@ function onKeyDown(event)
     	keymap[32] = true;
     }
 
+
+    //Toggle sound 
+
+	//Push SPACE
+	if (keyCode == 48 && mute == false) 
+    {
+    	backgroundMusic.pause();
+    	mute = true;
+    } 
+    else if(keyCode == 48 && mute == true ) 
+    {
+    	backgroundMusic.play();
+    	mute = false;
+    }
+
 }
 
 function JackControls () {
@@ -438,7 +496,6 @@ function JackControls () {
     } 
 
 	//Push SPACE
-	//what goes up must come down, but this doesn't....
 	if (keymap[32]) 
     {    	
     	//check if double jump
