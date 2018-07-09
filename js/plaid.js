@@ -331,7 +331,7 @@ function update(dt) {
 	var lighty = Math.cos( timeStamp );
 	var lightz = Math.sin( timeStamp ); //Change to cos for on/off night/day
 
-	directionalLight.position.set( MAPSIZE*lightx, MAPSIZE*lighty, MAPSIZE*lightz );
+	directionalLight.position.set( MAP_SIZE*lightx, MAP_SIZE*lighty, MAP_SIZE*lightz );
 
 	//console.log(dt);
 
