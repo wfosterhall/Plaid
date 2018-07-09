@@ -1,10 +1,12 @@
 //Setup
 var scene, camera, renderer;
+var directionalLight;
 var backgroundMusic;
+
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAPSIZE = 20;
+const MAPSIZE = 10;
 const MAXSPEED = 5;
 
 var tree;
@@ -41,6 +43,7 @@ function init()
 {
 	//Create a scene
 	scene = new THREE.Scene();
+	scene.fog = new THREE.Fog( 0xffffff, 10, 1000 );
 
 	document.addEventListener("keydown", onKeyDown, false);
 	document.addEventListener("keyup", onKeyUp, false);
@@ -106,7 +109,7 @@ function init()
 	scene.add( ambient );
 
 	//add directional light
-	var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	directionalLight = new THREE.DirectionalLight( 0xffff00, 0.5 );
 	directionalLight.position.set( 0, 10, 10 );
 	scene.add( directionalLight );
 
@@ -210,7 +213,7 @@ function createMap() {
 	//adding our character to the left most tile
 
 	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
-	var material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+	var material = new THREE.MeshToonMaterial( { color: 0xff0000 } );
 
 	lumberjack = new THREE.Mesh( geometry, material );
 
@@ -248,7 +251,7 @@ function layTile(x,y)
 	var geometry = new THREE.BoxGeometry( 10, 2, 10 );
 
 	//Make the tile 
-	var material = new THREE.MeshLambertMaterial( { color: col[val] } );
+	var material = new THREE.MeshToonMaterial( { color: col[val] } );
 	var baseTile = new THREE.Mesh( geometry, material );
 	
 	//Place it in the scene 
@@ -286,12 +289,20 @@ function render()
 
 
     //have temporarily changed this to debug
-	update(0.1);
+	update( 0.1 );
 
 };
 
-
 function update(dt) {
+
+	//light movement ( daytime / nighttime )
+	var timeStamp = Date.now() / 10000;
+
+	var lightx = 0;
+	var lighty = Math.cos( timeStamp );
+	var lightz = Math.sin( timeStamp ); //Change to cos for on/off night/day
+
+	directionalLight.position.set( MAPSIZE*lightx, MAPSIZE*lighty, MAPSIZE*lightz );
 
 	//console.log(dt);
 
@@ -303,7 +314,7 @@ function update(dt) {
 	//needs to be precise
 
 	//check if on the map
-	if (lumberjack.position.x > MAPSIZE * 5 || lumberjack.position.x < -MAPSIZE * 5 || lumberjack.position.z > MAPSIZE * 5 || lumberjack.position.z < -MAPSIZE * 5)
+	if (lumberjack.position.x > MAPSIZE*5 || lumberjack.position.x < -MAPSIZE*5 || lumberjack.position.z > MAPSIZE*5 || lumberjack.position.z < -MAPSIZE*5)
 	{
 		isGrounded = false;
 		isFalling = true;
@@ -450,7 +461,7 @@ function onKeyDown(event)
 
     //Toggle sound 
 
-	//Push SPACE
+	//Push 0
 	if (keyCode == 48 && mute == false) 
     {
     	backgroundMusic.pause();
