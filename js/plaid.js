@@ -140,29 +140,29 @@ function init()
 	// instantiate a loader
 	var loader = new THREE.AudioLoader();
 
-	// load a resource
-	// loader.load(
-	// 	// resource URL
-	// 	'resources/backgroundMusic.mp3',
+	//load a resource
+	loader.load(
+		// resource URL
+		'resources/backgroundMusic.mp3',
 
-	// 	// onLoad callback
-	// 	function ( audioBuffer ) {
-	// 		// set the audio object buffer to the loaded object
-	// 		backgroundMusic.setBuffer( audioBuffer );
-	// 		loadingCounter++;
-	// 	},
+		// onLoad callback
+		function ( audioBuffer ) {
+			// set the audio object buffer to the loaded object
+			backgroundMusic.setBuffer( audioBuffer );
+			loadingCounter++;
+		},
 
-	// 	// onProgress callback
-	// 	function ( xhr ) {
-	// 		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-	// 	},
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
 
-	// 	// onError callback
-	// 	function ( err ) {
-	// 		console.log( 'An error happened' );
-	// 		loadingCounter = -1;
-	// 	}
-	// );
+		// onError callback
+		function ( err ) {
+			console.log( 'An error happened' );
+			loadingCounter = -1;
+		}
+		);
 
 
 ////////////////////////////////////////////
@@ -551,24 +551,28 @@ function JackControls () {
     //Push W
 	if (keymap[87]) 
     {
+    	lumberjack.rotation.y = - Math.PI;
         vel[2] -= speed;
     } 
     
     //Push A
 	if (keymap[65]) 
     {
+        lumberjack.rotation.y = - Math.PI / 2;
         vel[0] -= speed;
     } 
 
     //Push S
 	if (keymap[83]) 
     {
+    	lumberjack.rotation.y = 0;
         vel[2] += speed;
     } 
 
     //Push D
 	if (keymap[68]) 
     {
+    	lumberjack.rotation.y = + Math.PI / 2;
         vel[0] += speed;
     } 
 
