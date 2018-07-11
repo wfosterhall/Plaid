@@ -12,6 +12,8 @@ const MAX_SPEED = 5;
 var tree;
 var trees = [];
 
+var jackModel;
+
 var lumberjack; //to store our character object
 
 var vel = [0, 0, 0]; //store our chars movement, might want to move this into object later
@@ -139,28 +141,28 @@ function init()
 	var loader = new THREE.AudioLoader();
 
 	// load a resource
-	loader.load(
-		// resource URL
-		'resources/backgroundMusic.mp3',
+	// loader.load(
+	// 	// resource URL
+	// 	'resources/backgroundMusic.mp3',
 
-		// onLoad callback
-		function ( audioBuffer ) {
-			// set the audio object buffer to the loaded object
-			backgroundMusic.setBuffer( audioBuffer );
-			loadingCounter++;
-		},
+	// 	// onLoad callback
+	// 	function ( audioBuffer ) {
+	// 		// set the audio object buffer to the loaded object
+	// 		backgroundMusic.setBuffer( audioBuffer );
+	// 		loadingCounter++;
+	// 	},
 
-		// onProgress callback
-		function ( xhr ) {
-			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-		},
+	// 	// onProgress callback
+	// 	function ( xhr ) {
+	// 		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+	// 	},
 
-		// onError callback
-		function ( err ) {
-			console.log( 'An error happened' );
-			loadingCounter = -1;
-		}
-	);
+	// 	// onError callback
+	// 	function ( err ) {
+	// 		console.log( 'An error happened' );
+	// 		loadingCounter = -1;
+	// 	}
+	// );
 
 
 ////////////////////////////////////////////
@@ -179,6 +181,30 @@ function init()
 
 		console.log(gltf.scene.children);
 		tree = gltf.scene.children[0];
+		loadingCounter++;
+	},
+
+	// onProgress callback
+	function ( xhr ) {
+		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+	},
+
+	// onError callback
+	function( err ) {
+		console.log( 'An error occured' );
+		loadingCounter = -1;
+	}
+	);
+
+	loader.load(
+	// resource URL
+	'resources/jack.gltf',
+
+	// onLoad callback
+	function ( gltf ) {
+
+		console.log(gltf.scene.children);
+		jackModel = gltf.scene.children[0];
 		loadingCounter++;
 	},
 
@@ -242,7 +268,7 @@ function createMap() {
 	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
 	var material = new THREE.MeshToonMaterial( { color: 0xff0000 } );
 
-	lumberjack = new THREE.Mesh( geometry, material );
+	lumberjack = jackModel.clone();
 
 	lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
 	isGrounded = true;
@@ -254,7 +280,6 @@ function createMap() {
 //Lay down base tiles 
 function layTile(x, y, val)
 {
-
 
 	x = (x - MAP_SIZE/2 ) * 10;
 	y = (y - MAP_SIZE/2 ) * 10;
@@ -349,11 +374,6 @@ function update(dt) {
 		isFalling = true;
 	}
 
-	//apply velocities
-	lumberjack.position.x += vel[0] * dt;
-	lumberjack.position.y += vel[1] * dt;
-	lumberjack.position.z += vel[2] * dt;
-
 	//dampen movement
 
 	if (vel[0] > 0) {
@@ -361,12 +381,12 @@ function update(dt) {
 	}
 	
 	if (vel[0] < 0) {
-		vel[0] += 0.5; 
+		vel[0] += 0.5;
 	}
 
 
 	if (vel[2] > 0) {
-		vel[2] -= 0.5; 
+		vel[2] -= 0.5;
 	}
 	
 	if (vel[2] < 0) {
@@ -380,33 +400,23 @@ function update(dt) {
 
 	//place constraints
 
-	if (vel[0] > MAX_SPEED) {
-
+	if (vel[0] > MAX_SPEED)
 		vel[0] = MAX_SPEED;
 
-	}
-
-	if (vel[0] < - MAX_SPEED) {
-
+	if (vel[0] < - MAX_SPEED)
 		vel[0] = -MAX_SPEED;
-	}
 
-	if (vel[2] > MAX_SPEED) {
-
+	if (vel[2] > MAX_SPEED)
 		vel[2] = MAX_SPEED;
 
-	}
-
-	if (vel[2] < - MAX_SPEED) {
-	
+	if (vel[2] < - MAX_SPEED)
 		vel[2] = -MAX_SPEED;
 
-	}
+	moveLumberJack(vel[0] * dt, vel[1] * dt, vel[2] * dt);
 
 
-	//remove small error amount
+	//checkiing ground collisions
 
-	//2 is our ground plane, maybe change to 0?
 	if (lumberjack.position.y < 4.5 && !isFalling) {
 
 		vel[1] = 0;
@@ -425,12 +435,39 @@ function update(dt) {
 
 }
 
+function moveLumberJack(x, y, z) {
+
+	//get map coordinates
+
+	//console.log (mx + ':' + mz)
+
+
+	//check collisions with neighbouring boxes
+
+
+	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + x)/10);
+	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + z)/10);
+
+	console.log (map[newz * MAP_SIZE + newx]);
+
+	if (!map[newz * MAP_SIZE + newx]) {
+		
+		lumberjack.position.x += x;
+		lumberjack.position.z += z;
+	}
+
+	//apply velocities
+	lumberjack.position.y += y;
+
+
+}
+
 function onKeyUp(event) 
 {
 
 	var keyCode = event.which;
 
-	console.log(keyCode);
+	//console.log(keyCode);
 
 	keymap[keyCode] = false;
 
@@ -438,7 +475,7 @@ function onKeyUp(event)
 	
 function onKeyDown(event) 
 {
-	console.log(keymap);
+	//console.log(keymap);
 	var keyCode = event.which;
 
 	//Toggle view 
@@ -455,7 +492,7 @@ function onKeyDown(event)
         camera = cameraP;
     } 
 
-    //Lumberjack Controls 
+    //lumberjack Controls 
 
     //Push W
 	if (keyCode == 87) 
@@ -544,5 +581,22 @@ function JackControls () {
     		isGrounded = false;
     	}
     }
+
+}
+
+function cutTree(tree) {
+
+	//get a tree
+
+	//play animation
+
+	//wait until finished
+
+	//change trees model/remove tree
+
+	//add wood
+
+	//update map
+
 
 }
