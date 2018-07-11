@@ -33,7 +33,7 @@ var keymap = {};
 var mute = true;
 
 var menu = true;
-var menuPositionOn = 39.2;
+var menuPositionOn = 39.1;
 var menuPositionOff = 0;
 var menuSprite;
 
@@ -70,7 +70,7 @@ function init()
 	renderer.setSize( width, height );
 
 	//set background
-	renderer.setClearColor (0x0077be, 1);
+	renderer.setClearColor ( 0x87CEEB, 1);
 	document.body.appendChild( renderer.domElement );
 
 
@@ -107,7 +107,7 @@ function init()
 	info.style.top = '30px';
 	info.style.width = '100%';
 	info.style.textAlign = 'center';
-	info.innerHTML = 'O: Orthographic P: Perspective 0: Toggle Music M: Toggle Menu';
+	info.innerHTML = 'M: Toggle Menu';
 	container.appendChild( info );
 
 
@@ -173,7 +173,7 @@ function init()
 ////////////////////////////////////////////
 
 	//Make a new sprite and texture with intro
-	var spriteMap = new THREE.TextureLoader().load( "resources/axe.png" );
+	var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
 	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
 	
 	//Add sprite to scene 
@@ -182,9 +182,11 @@ function init()
 
 	//Position on intro page 
 	menu = true;
+	menuSprite.scale.x = 1.5;
 	menuSprite.position.x = 39;
 	menuSprite.position.y = menuPositionOn;
 	menuSprite.position.z = 39;
+
 
 ////////////////////////////////////////////
 /*                OBJECTS                 */
