@@ -3,6 +3,7 @@ var scene, camera, renderer;
 var directionalLight;
 var backgroundMusic;
 var newTree;
+var menuSprite;
 
 var zoom = 0.1;
 
@@ -27,11 +28,15 @@ var map = [];
 
 var prevtime = 0;
 
-//trying to make man move in both directions at once
-//will write a keymap so we can detect whats happening at what time;
 var keymap = {};
 
 var mute = true;
+
+var menu = true;
+var menuPositionOn = 39.2;
+var menuPositionOff = 0;
+var menuSprite;
+
 
 var loadingCounter = 0;
 
@@ -102,7 +107,7 @@ function init()
 	info.style.top = '30px';
 	info.style.width = '100%';
 	info.style.textAlign = 'center';
-	info.innerHTML = 'O: Orthographic P: Perspective 0: Toggle Music';
+	info.innerHTML = 'O: Orthographic P: Perspective 0: Toggle Music M: Toggle Menu';
 	container.appendChild( info );
 
 
@@ -163,6 +168,23 @@ function init()
 		}
 		);
 
+////////////////////////////////////////////
+/*                  MENU                  */
+////////////////////////////////////////////
+
+	//Make a new sprite and texture with intro
+	var spriteMap = new THREE.TextureLoader().load( "resources/axe.png" );
+	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+	
+	//Add sprite to scene 
+	menuSprite = new THREE.Sprite( spriteMaterial );
+	scene.add( menuSprite );
+
+	//Position on intro page 
+	menu = true;
+	menuSprite.position.x = 39;
+	menuSprite.position.y = menuPositionOn;
+	menuSprite.position.z = 39;
 
 ////////////////////////////////////////////
 /*                OBJECTS                 */
@@ -574,6 +596,21 @@ function onKeyDown(event)
     {
     	backgroundMusic.play();
     	mute = false;
+    }
+
+    //Toggle Menu 
+
+    //Push M
+	if (keyCode == 77 && menu == true) 
+    {
+    	menu = false;
+    	menuSprite.position.y = menuPositionOff;
+
+    } 
+    else if(keyCode == 77 && menu == false) 
+    {
+    	menu = true;
+    	menuSprite.position.y = menuPositionOn;
     }
 
 }
