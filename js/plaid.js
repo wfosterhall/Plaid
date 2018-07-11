@@ -463,8 +463,8 @@ function moveLumberJack(dt) {
 
 	//check collisions with neighbouring boxes
 
-	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.vel[0])/10);
-	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.vel[2])/10);
+	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
+	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
 
 	console.log (map[newz * MAP_SIZE + newx]);
 	
