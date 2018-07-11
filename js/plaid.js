@@ -19,9 +19,6 @@ var lumberjack; //to store our character object
 
 var vel = [0, 0, 0]; //store our chars movement, might want to move this into object later
 
-var isGrounded; //storing our chars status
-var isFalling;
-
 var money = 0;
 var wood = 0;
 var environment = 0;
@@ -40,12 +37,7 @@ var loadingCounter = 0;
 
 const LOAD_MAX = 2; //change for how many objects we have to load
 
-function LumberJack () {
-
-
-
-}
-
+var debugLines;
 
 //var levels = [3, 5, 10, 20];
 
@@ -262,6 +254,7 @@ function createMap() {
 
 			var val = Math.floor( Math.random() * 2 );
 
+			//MAKE THIS 1 UNIT BIGGER IN ALL DIRECTIONS
 			map[j * MAP_SIZE + i] = val;
 
 			layTile(i,j,val);
@@ -272,15 +265,40 @@ function createMap() {
 
 	//adding our character to the left most tile
 
-	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
-	var material = new THREE.MeshToonMaterial( { color: 0xff0000 } );
-
 	lumberjack = jackModel.clone();
 
 	lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
-	isGrounded = true;
-	isFalling = false;
+
+	lumberjack.vel = [0, 0, 0];
+
+	lumberjack.isGrounded = true;
+	lumberjack.isFalling = false;
+	lumberjack.radius = 2;
 	scene.add( lumberjack );
+
+	//circle for debugging collisions
+
+	var curve = new THREE.EllipseCurve(
+	0,  0,            // ax, aY
+	2, 2,           // xRadius, yRadius
+	0,  2 * Math.PI,  // aStartAngle, aEndAngle
+	false,            // aClockwise
+	0                 // aRotation
+	);
+
+	var points = curve.getPoints( 50 );
+	var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+	var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+
+	// Create the final object to add to the scene
+	debugLines = new THREE.Line( geometry, material );
+
+	debugLines.position = lumberjack.position;
+
+	debugLines.rotation.x = Math.PI/2;
+
+	scene.add(debugLines);
 
 }
 
@@ -371,102 +389,112 @@ function update(dt) {
 
 	//easier to have an update function to manage movement independently of keystrokes
 	
-	JackControls();
+
 
 	//movement is a bit jerky, fix this up
 	//needs to be precise
 
-	//check if on the map
-	if (lumberjack.position.x > MAP_SIZE * 5 || lumberjack.position.x < -MAP_SIZE * 5 || lumberjack.position.z > MAP_SIZE * 5 || lumberjack.position.z < -MAP_SIZE * 5)
-	{
-		isGrounded = false;
-		isFalling = true;
-	}
-
-	//dampen movement
-
-	if (vel[0] > 0) {
-		vel[0] -= 0.5;
-	}
-	
-	if (vel[0] < 0) {
-		vel[0] += 0.5;
-	}
 
 
-	if (vel[2] > 0) {
-		vel[2] -= 0.5;
-	}
-	
-	if (vel[2] < 0) {
-		vel[2] += 0.5; 
-	}
+	moveLumberJack(dt);
 
-	//assume + is movement upwards
-	if (!isGrounded) {
-		vel[1] -= 10 * dt; 
-	}
-
-	//place constraints
-
-	if (vel[0] > MAX_SPEED)
-		vel[0] = MAX_SPEED;
-
-	if (vel[0] < - MAX_SPEED)
-		vel[0] = -MAX_SPEED;
-
-	if (vel[2] > MAX_SPEED)
-		vel[2] = MAX_SPEED;
-
-	if (vel[2] < - MAX_SPEED)
-		vel[2] = -MAX_SPEED;
-
-	moveLumberJack(vel[0] * dt, vel[1] * dt, vel[2] * dt);
-
+	debugLines.position.set(lumberjack.position.x, lumberjack.position.y, lumberjack.position.z  );
 
 	//checkiing ground collisions
 
-	if (lumberjack.position.y < 4.5 && !isFalling) {
 
-		vel[1] = 0;
-
-		isGrounded = true;
-
-		lumberjack.position.y = 4.5;
-
-	}
-
-	if (isFalling && lumberjack.position.y < -1000) {
-
-		isFalling = false;
-		lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
-	}
 
 }
 
-function moveLumberJack(x, y, z) {
+function moveLumberJack(dt) {
 
 	//get map coordinates
 
 	//console.log (mx + ':' + mz)
 
+	JackControls();
+
+		//check if on the map
+	if (lumberjack.position.x + lumberjack.radius > MAP_SIZE * 5 || lumberjack.position.x + 2 * lumberjack.radius < - MAP_SIZE * 5 || lumberjack.position.z + lumberjack.radius > MAP_SIZE * 5 || lumberjack.position.z + 2 * lumberjack.radius < - MAP_SIZE * 5)
+	{
+		lumberjack.isGrounded = false;
+		lumberjack.isFalling = true;
+	}
+
+	//dampen movement
+
+	if (lumberjack.vel[0] > 0) {
+		lumberjack.vel[0] -= 0.5;
+	}
+	
+	if (lumberjack.vel[0] < 0) {
+		lumberjack.vel[0] += 0.5;
+	}
+
+
+	if (lumberjack.vel[2] > 0) {
+		lumberjack.vel[2] -= 0.5;
+	}
+	
+	if (lumberjack.vel[2] < 0) {
+		lumberjack.vel[2] += 0.5; 
+	}
+
+	//assume + is movement upwards
+	if (!lumberjack.isGrounded) {
+		lumberjack.vel[1] -= 10 * dt; 
+	}
+
+	//place constraints
+
+	if (lumberjack.vel[0] > MAX_SPEED)
+		lumberjack.vel[0] = MAX_SPEED;
+
+	if (lumberjack.vel[0] < - MAX_SPEED)
+		lumberjack.vel[0] = -MAX_SPEED;
+
+	if (lumberjack.vel[2] > MAX_SPEED)
+		lumberjack.vel[2] = MAX_SPEED;
+
+	if (lumberjack.vel[2] < - MAX_SPEED)
+		lumberjack.vel[2] = -MAX_SPEED;
+
+
 
 	//check collisions with neighbouring boxes
 
-
-	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + x)/10);
-	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + z)/10);
+	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.vel[0])/10);
+	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.vel[2])/10);
 
 	console.log (map[newz * MAP_SIZE + newx]);
+	
+	//apply velocities
+	lumberjack.position.y += lumberjack.vel[1] * dt;
 
 	if (!map[newz * MAP_SIZE + newx]) {
 		
-		lumberjack.position.x += x;
-		lumberjack.position.z += z;
+		lumberjack.position.x += lumberjack.vel[0] * dt;
+		lumberjack.position.z += lumberjack.vel[2] * dt;
 	}
 
-	//apply velocities
-	lumberjack.position.y += y;
+
+
+	//handle falling
+	if (lumberjack.position.y < 4.5 && !lumberjack.isFalling) {
+
+		lumberjack.vel[1] = 0;
+
+		lumberjack.isGrounded = true;
+
+		lumberjack.position.y = 4.5;
+
+	}
+
+	if (lumberjack.isFalling && lumberjack.position.y < -1000) {
+
+		lumberjack.isFalling = false;
+		lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
+	}
 
 
 }
@@ -542,7 +570,7 @@ function onKeyDown(event)
     	backgroundMusic.pause();
     	mute = true;
     } 
-    else if(keyCode == 48 && mute == true ) 
+    else if(keyCode == 48 && mute == true) 
     {
     	backgroundMusic.play();
     	mute = false;
@@ -561,40 +589,39 @@ function JackControls () {
 	if (keymap[87]) 
     {
     	lumberjack.rotation.y = - Math.PI;
-        vel[2] -= speed;
+        lumberjack.vel[2] -= speed;
     } 
     
     //Push A
 	if (keymap[65]) 
     {
         lumberjack.rotation.y = - Math.PI / 2;
-        vel[0] -= speed;
+        lumberjack.vel[0] -= speed;
     } 
 
     //Push S
 	if (keymap[83]) 
     {
     	lumberjack.rotation.y = 0;
-        vel[2] += speed;
+        lumberjack.vel[2] += speed;
     } 
 
     //Push D
 	if (keymap[68]) 
     {
     	lumberjack.rotation.y = + Math.PI / 2;
-        vel[0] += speed;
+        lumberjack.vel[0] += speed;
     } 
 
 	//Push SPACE
 	if (keymap[32]) 
     {    	
     	//check if double jump
-    	if (isGrounded) {
-    		vel[1] = 10;
-    		isGrounded = false;
+    	if (lumberjack.isGrounded) {
+    		lumberjack.vel[1] = 10;
+    		lumberjack.isGrounded = false;
     	}
     }
-
 }
 
 function cutTree(tree) {
