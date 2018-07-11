@@ -2,12 +2,13 @@
 var scene, camera, renderer;
 var directionalLight;
 var backgroundMusic;
+var newTree;
 
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAP_SIZE = 4;
-const MAX_SPEED = 5;
+const MAP_SIZE = 10;
+const MAX_SPEED = 3;
 
 var tree;
 var trees = [];
@@ -51,7 +52,7 @@ function init()
 {
 	//Create a scene
 	scene = new THREE.Scene();
-	scene.fog = new THREE.Fog( 0xffffff, 10, 1000 );
+	scene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
 
 	document.addEventListener("keydown", onKeyDown, false);
 	document.addEventListener("keyup", onKeyUp, false);
@@ -290,7 +291,7 @@ function layTile(x, y, val)
 	//add a tree
 	if ( val > 0.7) {
 
-		var newTree = tree.clone();
+		newTree = tree.clone();
 		newTree.scale.y = 2;
 
 		newTree.position.set( x, 2, y );
@@ -322,6 +323,8 @@ function render()
 	//User input 
 	renderer.render( scene, camera );
 
+	//newTree.scale.y += 0.0001;
+
 	//perform loop here
 
 	//update position of light?
@@ -336,7 +339,7 @@ function render()
 	var time = performance.now();
 
     if (prevtime) {
-        dt = (time - prevtime)/1000;
+        dt = ( time - prevtime ) / 1000;
     }
 
     prevtime = time;
