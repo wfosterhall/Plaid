@@ -7,7 +7,7 @@ var newTree;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAP_SIZE = 10;
+const MAP_SIZE = 4;
 const MAX_SPEED = 3;
 
 var tree;
@@ -38,7 +38,13 @@ var mute = true;
 
 var loadingCounter = 0;
 
-const LOAD_MAX = 2; //change for how many objects we have to load 
+const LOAD_MAX = 2; //change for how many objects we have to load
+
+function LumberJack () {
+
+
+
+}
 
 
 //var levels = [3, 5, 10, 20];
