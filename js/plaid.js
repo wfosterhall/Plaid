@@ -600,6 +600,10 @@ function onKeyDown(event)
 
     //Toggle Menu 
 
+    /* At the moment only works on map size 4... 
+    need to find a way to re-render in front of camera
+    based on zoom */
+
     //Push M
 	if (keyCode == 77 && menu == true) 
     {
