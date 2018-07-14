@@ -325,11 +325,11 @@ function createMap() {
 }
 
 //Lay down base tiles 
-function layTile(x, y, val)
+function layTile(x, z, val)
 {
 
-	x = (x - MAP_SIZE/2 ) * 10;
-	y = (y - MAP_SIZE/2 ) * 10;
+	var nx = (x - MAP_SIZE/2 ) * 10;
+	var nz = (z - MAP_SIZE/2 ) * 10;
 
 	//Randomly pick a colour 
 	var col = [ 0x228b22, 0x016c02 ];
@@ -340,7 +340,10 @@ function layTile(x, y, val)
 		newTree = tree.clone();
 		newTree.scale.y = 2;
 
-		newTree.position.set( x, 2, y );
+		newTree.position.set( nx, 2, nz );
+
+		newTree.mapX = x;
+		newTree.mapZ = z;
 
 		scene.add(newTree);
 
@@ -357,7 +360,7 @@ function layTile(x, y, val)
 	
 	//Place it in the scene 
 	scene.add( baseTile );
-	baseTile.position.set( x, 0, y );
+	baseTile.position.set( nx, 0, nz );
 }
 
 
@@ -698,27 +701,36 @@ function cutTree() {
 	if (dirX > 1)
 		dirX = 0;
 
-	var dirY = lumberjack.rotation.y/Math.PI;
+	var dirZ = - lumberjack.rotation.y/Math.PI;
 
-	if (dirY == 0)
-		dirY = -1;
+	if (dirZ == 0)
+		dirZ = 1;
 
-	if (Math.abs(dirY) < 1)
-		dirY = 0;
+	if (Math.abs(dirZ) < 1)
+		dirZ = 0;
 
-	console.log(dirX + ':' + dirY);
+	console.log(dirX + ':' + dirZ);
 
 	var posX = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
-	var posZ = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirY * reach)/10) ;
+	var posZ = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirZ * reach)/10) ;
 
 	var tile = map[posZ * MAP_SIZE + posX];
 
 	console.log(tile);
 
+	//remove collision
 	if (tile) {
 		map[posZ * MAP_SIZE + posX] = 0;
 	}
 
+	//remove tree
+
+	for (var i = trees.length - 1; i >= 0; i--) {
+		if (trees[i].mapX == posX && trees[i].mapZ == posZ)
+			scene.remove(trees[i]);
+	}
+
+	//add wood
 
 
 }
