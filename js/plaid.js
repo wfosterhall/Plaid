@@ -18,7 +18,6 @@ var jackModel;
 
 var lumberjack; //to store our character object
 
-var vel = [0, 0, 0]; //store our chars movement, might want to move this into object later
 
 var money = 0;
 var wood = 0;
@@ -44,7 +43,6 @@ const LOAD_MAX = 2; //change for how many objects we have to load
 
 var debugLines;
 
-//var levels = [3, 5, 10, 20];
 
 init();
 
@@ -490,7 +488,7 @@ function moveLumberJack(dt) {
 	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
 	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
 
-	console.log (map[newz * MAP_SIZE + newx]);
+	//console.log (map[newz * MAP_SIZE + newx]);
 	
 	//apply velocities
 	lumberjack.position.y += lumberjack.vel[1] * dt;
@@ -585,6 +583,12 @@ function onKeyDown(event)
     	keymap[32] = true;
     }
 
+    //Push E
+    if (keyCode == 69)
+    {
+    	keymap[69] = true;
+    }
+
 
     //Toggle sound 
 
@@ -631,7 +635,7 @@ function JackControls () {
     //Push W
 	if (keymap[87]) 
     {
-    	lumberjack.rotation.y = - Math.PI;
+    	lumberjack.rotation.y = Math.PI;
         lumberjack.vel[2] -= speed;
     } 
     
@@ -665,9 +669,15 @@ function JackControls () {
     		lumberjack.isGrounded = false;
     	}
     }
+
+    if (keymap[69])
+    {
+    	cutTree();
+    	keymap[69] = false;
+    }
 }
 
-function cutTree(tree) {
+function cutTree() {
 
 	//get a tree
 
@@ -680,6 +690,35 @@ function cutTree(tree) {
 	//add wood
 
 	//update map
+
+	var reach = 5; //in worldspace coordinates
+
+	var dirX = 2 * lumberjack.rotation.y/Math.PI;
+
+	if (dirX > 1)
+		dirX = 0;
+
+	var dirY = lumberjack.rotation.y/Math.PI;
+
+	if (dirY == 0)
+		dirY = -1;
+
+	if (Math.abs(dirY) < 1)
+		dirY = 0;
+
+	console.log(dirX + ':' + dirY);
+
+	var posX = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
+	var posZ = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirY * reach)/10) ;
+
+	var tile = map[posZ * MAP_SIZE + posX];
+
+	console.log(tile);
+
+	if (tile) {
+		map[posZ * MAP_SIZE + posX] = 0;
+	}
+
 
 
 }
