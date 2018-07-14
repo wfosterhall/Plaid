@@ -13,7 +13,7 @@
 // refactor probably everything
 
 //lots of variables here
-var scene, camera, renderer;
+var baseScene, camera, renderer;
 
 var currentScene, homeScene, levelScene;
 
@@ -90,35 +90,35 @@ function init()
 	// instantiate a listener
 	var audioListener = new THREE.AudioListener();
 
-	// instantiate audio object
-	backgroundMusic = new THREE.Audio( audioListener );
+	// // instantiate audio object
+	// backgroundMusic = new THREE.Audio( audioListener );
 
-	// instantiate a loader
-	var loader = new THREE.AudioLoader();
+	// // instantiate a loader
+	// var loader = new THREE.AudioLoader();
 
-	//load a resource
-	loader.load(
-		// resource URL
-		'resources/backgroundMusic.mp3',
+	// //load a resource
+	// loader.load(
+	// 	// resource URL
+	// 	'resources/backgroundMusic.mp3',
 
-		// onLoad callback
-		function ( audioBuffer ) {
-			// set the audio object buffer to the loaded object
-			backgroundMusic.setBuffer( audioBuffer );
-			loadingCounter++;
-		},
+	// 	// onLoad callback
+	// 	function ( audioBuffer ) {
+	// 		// set the audio object buffer to the loaded object
+	// 		backgroundMusic.setBuffer( audioBuffer );
+	// 		loadingCounter++;
+	// 	},
 
-		// onProgress callback
-		function ( xhr ) {
-			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-		},
+	// 	// onProgress callback
+	// 	function ( xhr ) {
+	// 		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+	// 	},
 
-		// onError callback
-		function ( err ) {
-			console.log( 'An error happened' );
-			loadingCounter = -100;
-		}
-	);
+	// 	// onError callback
+	// 	function ( err ) {
+	// 		console.log( 'An error happened' );
+	// 		loadingCounter = -100;
+	// 	}
+	// );
 
 
 	////////////////////////////////////////////
@@ -196,12 +196,15 @@ function init()
 	}, 50);
 }
 
-function sceneInit(audioListener, ) {
+function sceneInit(audioListener) {
 
-	//Create a scene
-	homeScene = new THREE.Scene();
-	homeScene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
+	//Create scenes
+	baseScene = new THREE.Scene();
+	//homeScene = new THREE.Scene();
+	//currentScene = new THREE.Scene();
+ 
 
+	baseScene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
 
 	////////////////////////////////////////////
 	/*                CAMERAS                 */
@@ -222,16 +225,17 @@ function sceneInit(audioListener, ) {
 	var camDist = MAP_SIZE * 10;
 
 	cameraP.position.set( camDist, camDist, camDist ); //Camera equal distance away
-	cameraP.lookAt( homeScene.position ); //Camera always looks at origin
+	cameraP.lookAt( baseScene.position ); //Camera always looks at origin
 
 	//Adjust Pcamera, set up isometric view
-	var camDist = MAP_SIZE * 10;
 
 	cameraO.position.set( camDist, camDist, camDist ); //Camera equal distance away
-	cameraO.lookAt( homeScene.position ); //Camera always looks at origin
+	cameraO.lookAt( baseScene.position ); //Camera always looks at origin
 
 	camera = cameraP;
-	homeScene.add( camera ); 
+
+	//dont need to add camera, causes funny bugs
+	//baseScene.add(camera); 
 
 	//Add camera toggle instructions
 	container = document.createElement( 'div' );
@@ -255,7 +259,7 @@ function sceneInit(audioListener, ) {
 	
 	//Add sprite to scene 
 	menuSprite = new THREE.Sprite( spriteMaterial );
-	homeScene.add( menuSprite );
+	baseScene.add( menuSprite );
 
 	//Position on intro page 
 	menu = true;
@@ -271,12 +275,12 @@ function sceneInit(audioListener, ) {
 
 	//Add some ambient light
 	var ambient = new THREE.AmbientLight( 0x404040, 5 );
-	homeScene.add( ambient );
+	baseScene.add( ambient );
 
 	//add directional light
 	directionalLight = new THREE.DirectionalLight( 0xffff00, 0.5 );
 	directionalLight.position.set( 0, 10, 10 );
-	homeScene.add( directionalLight );
+	baseScene.add( directionalLight );
 
 
 	////////////////////////////////////////////
@@ -284,17 +288,13 @@ function sceneInit(audioListener, ) {
 	////////////////////////////////////////////
 
 	// add the audio object to the scene
-	homeScene.add( backgroundMusic );
 
-
+	homeScene = baseScene.clone();
 
 	currentScene = homeScene;
 
 	createMap(MAP_SIZE);
 	render();
-
-
-
 
 }
 
@@ -311,6 +311,10 @@ function createMap(n) {
 			var val = Math.floor( Math.random() * 2 );
 
 			//MAKE THIS 1 UNIT BIGGER IN ALL DIRECTIONS
+
+			if (j == n/2 && i == n/2)
+				val = 3;
+
 			map[j * n + i] = val;
 
 			layTile(i, j, val, n);
@@ -401,10 +405,11 @@ function layTile(x, z, val, n)
 //Draw/render the scene on the canvas 
 function render()
 {
+
 	requestAnimationFrame(render);
 
 	//User input 
-	renderer.render( currentScene, camera );
+	renderer.render(currentScene, camera);
 
 	//should just have to use char.position.set to change the characters position, this can be done down below i think, might want to use callbacks later idk.
 
@@ -749,8 +754,13 @@ function interact() {
 		wood++;
 	}
 
-	if (tile == 2) {
+	if (tile == 3) {
 		//interacting with beanstalk
+
+		//move to a new function
+		levelScene = new THREE.Scene();
+		levelScene = baseScene.clone();
+		currentScene = levelScene;
 
 	}
 
