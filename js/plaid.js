@@ -1,5 +1,8 @@
 //Setup
 var scene, camera, renderer;
+
+var currentScene, homeScene, levelScene;
+
 var directionalLight;
 var backgroundMusic;
 var newTree;
@@ -51,15 +54,9 @@ init();
 //Scene setup
 function init()
 {
-	//Create a scene
-	scene = new THREE.Scene();
-	scene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
 
 	document.addEventListener("keydown", onKeyDown, false);
 	document.addEventListener("keyup", onKeyUp, false);
-
-
-	//add in a scene loader at some point, or just list of scene sizes for game
 
 	//Renderer
 	var width = window.innerWidth;
@@ -72,72 +69,15 @@ function init()
 	document.body.appendChild( renderer.domElement );
 
 
-////////////////////////////////////////////
-/*                CAMERAS                 */
-////////////////////////////////////////////
-
-	//Camera
-	cameraP = new THREE.PerspectiveCamera( 45, width/height, 0.1, 1000 );
-	cameraO = new THREE.OrthographicCamera( zoom * width / - 1.5, zoom * width / 1.5, zoom * height / 1.5, zoom * height / - 1.5, 1, 1000 );
-	
-
-	//Adjust Ocamera, set up isometric view
-	var camDist = MAP_SIZE * 10;
-
-	cameraP.position.set( camDist, camDist, camDist ); //Camera equal distance away
-	cameraP.lookAt( scene.position ); //Camera always looks at origin
-
-
-	//Adjust Pcamera, set up isometric view
-	var camDist = MAP_SIZE * 10;
-
-	cameraO.position.set( camDist, camDist, camDist ); //Camera equal distance away
-	cameraO.lookAt( scene.position ); //Camera always looks at origin
-
-	camera = cameraP;
-	scene.add( camera ); 
-
-	//Add camera toggle instructions
-	container = document.createElement( 'div' );
-	document.body.appendChild( container );
-	var info = document.createElement( 'div' );
-	info.style.position = 'absolute';
-	info.style.top = '30px';
-	info.style.width = '100%';
-	info.style.textAlign = 'center';
-	info.innerHTML = 'M: Toggle Menu';
-	container.appendChild( info );
-
-
-////////////////////////////////////////////
-/*                 LIGHTS                 */
-////////////////////////////////////////////
-
-
-	//Add some ambient light
-	var ambient = new THREE.AmbientLight( 0x404040, 5 );
-	scene.add( ambient );
-
-	//add directional light
-	directionalLight = new THREE.DirectionalLight( 0xffff00, 0.5 );
-	directionalLight.position.set( 0, 10, 10 );
-	scene.add( directionalLight );
-
-////////////////////////////////////////////
-/*                 AUDIO                  */
-////////////////////////////////////////////
+	////////////////////////////////////////////
+	/*            AUDIO LOADING               */
+	////////////////////////////////////////////
 
 	// instantiate a listener
 	var audioListener = new THREE.AudioListener();
 
-	// add the listener to the camera
-	camera.add( audioListener );
-
 	// instantiate audio object
 	backgroundMusic = new THREE.Audio( audioListener );
-
-	// add the audio object to the scene
-	scene.add( backgroundMusic );
 
 	// instantiate a loader
 	var loader = new THREE.AudioLoader();
@@ -162,87 +102,67 @@ function init()
 		// onError callback
 		function ( err ) {
 			console.log( 'An error happened' );
-			loadingCounter = -1;
+			loadingCounter = -100;
 		}
-		);
-
-////////////////////////////////////////////
-/*                  MENU                  */
-////////////////////////////////////////////
-
-	//Make a new sprite and texture with intro
-	var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
-	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
-	
-	//Add sprite to scene 
-	menuSprite = new THREE.Sprite( spriteMaterial );
-	scene.add( menuSprite );
-
-	//Position on intro page 
-	menu = true;
-	menuSprite.scale.x = 1.5;
-	menuSprite.position.x = 39;
-	menuSprite.position.y = menuPositionOn;
-	menuSprite.position.z = 39;
+	);
 
 
-////////////////////////////////////////////
-/*                OBJECTS                 */
-////////////////////////////////////////////
+	////////////////////////////////////////////
+	/*            OBJECT LOADING              */
+	////////////////////////////////////////////
 
 	//load our objects
 	var loader = new THREE.GLTFLoader();
 
 	loader.load(
 	// resource URL
-	'resources/tree.gltf',
+		'resources/tree.gltf',
 
-	// onLoad callback
-	function ( gltf ) {
+		// onLoad callback
+		function ( gltf ) {
 
-		console.log(gltf.scene.children);
-		tree = gltf.scene.children[0];
-		loadingCounter++;
-	},
+			console.log(gltf.scene.children);
+			tree = gltf.scene.children[0];
+			loadingCounter++;
+		},
 
-	// onProgress callback
-	function ( xhr ) {
-		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-	},
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
 
-	// onError callback
-	function( err ) {
-		console.log( 'An error occured' );
-		loadingCounter = -1;
-	}
+		// onError callback
+		function( err ) {
+			console.log( 'An error occured' );
+			loadingCounter = -100;
+		}
 	);
 
 	loader.load(
 	// resource URL
-	'resources/jack.gltf',
+		'resources/jack.gltf',
 
-	// onLoad callback
-	function ( gltf ) {
+		// onLoad callback
+		function ( gltf ) {
 
-		console.log(gltf.scene.children);
-		jackModel = gltf.scene.children[0];
-		loadingCounter++;
-	},
+			console.log(gltf.scene.children);
+			jackModel = gltf.scene.children[0];
+			loadingCounter++;
+		},
 
-	// onProgress callback
-	function ( xhr ) {
-		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-	},
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
 
-	// onError callback
-	function( err ) {
-		console.log( 'An error occured' );
-		loadingCounter = -1;
-	}
+		// onError callback
+		function( err ) {
+			console.log( 'An error occured' );
+			loadingCounter = -100;
+		}
 	);
 
 	//wait until loaded
-
 	var loadingHandle = setInterval(function() {
 
 		console.log("Loading...")
@@ -252,34 +172,134 @@ function init()
 			console.log("LOADING COMPLETE!")
 			clearInterval(loadingHandle);
 
-			createMap();
-			render();
+			sceneInit(audioListener);
 		}
-
 
 		if (loadingCounter < 0) {
 			console.log("Error Loading");
 		}
 
-
 	}, 50);
 }
 
-function createMap() {
+function sceneInit(audioListener, ) {
+
+	//Create a scene
+	homeScene = new THREE.Scene();
+	homeScene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
+
+
+	////////////////////////////////////////////
+	/*                CAMERAS                 */
+	////////////////////////////////////////////
+
+	var width = renderer.getSize().width;
+	var height = renderer.getSize().height;
+
+	//Camera
+	cameraP = new THREE.PerspectiveCamera( 45, width/height, 0.1, 1000 );
+	cameraO = new THREE.OrthographicCamera( zoom * width / - 1.5, zoom * width / 1.5, zoom * height / 1.5, zoom * height / - 1.5, 1, 1000 );
+	
+	// add the listener to the camera
+	cameraP.add( audioListener );
+	cameraO.add( audioListener );
+
+	//Adjust Ocamera, set up isometric view
+	var camDist = MAP_SIZE * 10;
+
+	cameraP.position.set( camDist, camDist, camDist ); //Camera equal distance away
+	cameraP.lookAt( homeScene.position ); //Camera always looks at origin
+
+	//Adjust Pcamera, set up isometric view
+	var camDist = MAP_SIZE * 10;
+
+	cameraO.position.set( camDist, camDist, camDist ); //Camera equal distance away
+	cameraO.lookAt( homeScene.position ); //Camera always looks at origin
+
+	camera = cameraP;
+	homeScene.add( camera ); 
+
+	//Add camera toggle instructions
+	container = document.createElement( 'div' );
+	document.body.appendChild( container );
+	var info = document.createElement( 'div' );
+	info.style.position = 'absolute';
+	info.style.top = '30px';
+	info.style.width = '100%';
+	info.style.textAlign = 'center';
+	info.innerHTML = 'M: Toggle Menu';
+	container.appendChild( info );
+
+
+	////////////////////////////////////////////
+	/*                  MENU                  */
+	////////////////////////////////////////////
+
+	//Make a new sprite and texture with intro
+	var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
+	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+	
+	//Add sprite to scene 
+	menuSprite = new THREE.Sprite( spriteMaterial );
+	homeScene.add( menuSprite );
+
+	//Position on intro page 
+	menu = true;
+	menuSprite.scale.x = 1.5;
+	menuSprite.position.x = 39;
+	menuSprite.position.y = menuPositionOn;
+	menuSprite.position.z = 39;
+
+
+	////////////////////////////////////////////
+	/*                 LIGHTS                 */
+	////////////////////////////////////////////
+
+	//Add some ambient light
+	var ambient = new THREE.AmbientLight( 0x404040, 5 );
+	homeScene.add( ambient );
+
+	//add directional light
+	directionalLight = new THREE.DirectionalLight( 0xffff00, 0.5 );
+	directionalLight.position.set( 0, 10, 10 );
+	homeScene.add( directionalLight );
+
+
+	////////////////////////////////////////////
+	/*                 AUDIO                  */
+	////////////////////////////////////////////
+
+	// add the audio object to the scene
+	homeScene.add( backgroundMusic );
+
+
+
+	currentScene = homeScene;
+
+	createMap(MAP_SIZE);
+	render();
+
+
+
+
+}
+
+
+function createMap(n) {
 
 	//Lay tiles for an n*n game board 
 
-	for (var j = 0; j < MAP_SIZE; j++)
+	for (var j = 0; j < n; j++)
 	{
-		for (var i = 0; i < MAP_SIZE; i++ )
+		for (var i = 0; i < n; i++ )
 		{
 
 			var val = Math.floor( Math.random() * 2 );
 
 			//MAKE THIS 1 UNIT BIGGER IN ALL DIRECTIONS
-			map[j * MAP_SIZE + i] = val;
+			map[j * n + i] = val;
 
-			layTile(i,j,val);
+			layTile(i, j, val, n);
 
 		}
 	}
@@ -289,14 +309,14 @@ function createMap() {
 
 	lumberjack = jackModel.clone();
 
-	lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
+	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
 
 	lumberjack.vel = [0, 0, 0];
 
 	lumberjack.isGrounded = true;
 	lumberjack.isFalling = false;
 	lumberjack.radius = 2;
-	scene.add( lumberjack );
+	currentScene.add( lumberjack );
 
 	//circle for debugging collisions
 
@@ -320,16 +340,16 @@ function createMap() {
 
 	debugLines.rotation.x = Math.PI/2;
 
-	scene.add(debugLines);
+	currentScene.add(debugLines);
 
 }
 
 //Lay down base tiles 
-function layTile(x, z, val)
+function layTile(x, z, val, n)
 {
 
-	var nx = (x - MAP_SIZE/2 ) * 10;
-	var nz = (z - MAP_SIZE/2 ) * 10;
+	var nx = (x - n/2 ) * 10;
+	var nz = (z - n/2 ) * 10;
 
 	//Randomly pick a colour 
 	var col = [ 0x228b22, 0x016c02 ];
@@ -345,7 +365,7 @@ function layTile(x, z, val)
 		newTree.mapX = x;
 		newTree.mapZ = z;
 
-		scene.add(newTree);
+		currentScene.add(newTree);
 
 		trees.push(newTree);
 
@@ -359,7 +379,7 @@ function layTile(x, z, val)
 	var baseTile = new THREE.Mesh( geometry, material );
 	
 	//Place it in the scene 
-	scene.add( baseTile );
+	currentScene.add( baseTile );
 	baseTile.position.set( nx, 0, nz );
 }
 
@@ -370,16 +390,7 @@ function render()
 	requestAnimationFrame(render);
 
 	//User input 
-	renderer.render( scene, camera );
-
-	//newTree.scale.y += 0.0001;
-
-	//perform loop here
-
-	//update position of light?
-
-	//check keycodes and update postion of char, maybe use callbacks?
-
+	renderer.render( currentScene, camera );
 
 	//should just have to use char.position.set to change the characters position, this can be done down below i think, might want to use callbacks later idk.
 
@@ -406,19 +417,9 @@ function update(dt) {
 
 	var lightx = 0;
 	var lighty = Math.cos( timeStamp );
-	var lightz = Math.sin( timeStamp ); //Change to cos for on/off night/day
+	var lightz = Math.sin( timeStamp );
 
 	directionalLight.position.set( MAP_SIZE*lightx, MAP_SIZE*lighty, MAP_SIZE*lightz );
-
-	//console.log(dt);
-
-	//easier to have an update function to manage movement independently of keystrokes
-	
-
-
-	//movement is a bit jerky, fix this up
-	//needs to be precise
-
 
 
 	moveLumberJack(dt);
@@ -496,7 +497,8 @@ function moveLumberJack(dt) {
 	//apply velocities
 	lumberjack.position.y += lumberjack.vel[1] * dt;
 
-	if (!map[newz * MAP_SIZE + newx]) {
+	//check if can walk
+	if (map[newz * MAP_SIZE + newx] == 0) {
 		
 		lumberjack.position.x += lumberjack.vel[0] * dt;
 		lumberjack.position.z += lumberjack.vel[2] * dt;
@@ -675,12 +677,12 @@ function JackControls () {
 
     if (keymap[69])
     {
-    	cutTree();
+    	interact();
     	keymap[69] = false;
     }
 }
 
-function cutTree() {
+function interact() {
 
 	//get a tree
 
@@ -719,18 +721,25 @@ function cutTree() {
 	console.log(tile);
 
 	//remove collision
-	if (tile) {
+	if (tile == 1) {
+		//interacting with a tree
 		map[posZ * MAP_SIZE + posX] = 0;
+
+		//remove tree
+		for (var i = trees.length - 1; i >= 0; i--) {
+			if (trees[i].mapX == posX && trees[i].mapZ == posZ)
+				currentScene.remove(trees[i]);
+		}
+
+		//add wood
+		wood++;
 	}
 
-	//remove tree
+	if (tile == 2) {
+		//interacting with beanstalk
 
-	for (var i = trees.length - 1; i >= 0; i--) {
-		if (trees[i].mapX == posX && trees[i].mapZ == posZ)
-			scene.remove(trees[i]);
 	}
 
-	//add wood
 
 
 }
