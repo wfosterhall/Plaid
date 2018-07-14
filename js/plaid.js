@@ -1,4 +1,18 @@
-//Setup
+////////////////////////////////////////////
+/*                  TODO                  */
+////////////////////////////////////////////
+// 
+// expand MAP by 1 unit in each direction to make sure no issues with falling off map
+// 
+// fix collisions, maybe just compare positions and make sure we dont cross over the threshold, currently is a bit shakey
+//
+// change UI to use CSS
+//
+// Implement levels
+//
+// refactor probably everything
+
+//lots of variables here
 var scene, camera, renderer;
 
 var currentScene, homeScene, levelScene;
@@ -70,7 +84,7 @@ function init()
 
 
 	////////////////////////////////////////////
-	/*            AUDIO LOADING               */
+	/*              AUDIO LOADING             */
 	////////////////////////////////////////////
 
 	// instantiate a listener
