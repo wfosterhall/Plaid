@@ -90,35 +90,35 @@ function init()
 	// instantiate a listener
 	var audioListener = new THREE.AudioListener();
 
-	// // instantiate audio object
-	// backgroundMusic = new THREE.Audio( audioListener );
+	// instantiate audio object
+	backgroundMusic = new THREE.Audio( audioListener );
 
-	// // instantiate a loader
-	// var loader = new THREE.AudioLoader();
+	// instantiate a loader
+	var loader = new THREE.AudioLoader();
 
-	// //load a resource
-	// loader.load(
-	// 	// resource URL
-	// 	'resources/backgroundMusic.mp3',
+	//load a resource
+	loader.load(
+		// resource URL
+		'resources/backgroundMusic.mp3',
 
-	// 	// onLoad callback
-	// 	function ( audioBuffer ) {
-	// 		// set the audio object buffer to the loaded object
-	// 		backgroundMusic.setBuffer( audioBuffer );
-	// 		loadingCounter++;
-	// 	},
+		// onLoad callback
+		function ( audioBuffer ) {
+			// set the audio object buffer to the loaded object
+			backgroundMusic.setBuffer( audioBuffer );
+			loadingCounter++;
+		},
 
-	// 	// onProgress callback
-	// 	function ( xhr ) {
-	// 		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-	// 	},
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
 
-	// 	// onError callback
-	// 	function ( err ) {
-	// 		console.log( 'An error happened' );
-	// 		loadingCounter = -100;
-	// 	}
-	// );
+		// onError callback
+		function ( err ) {
+			console.log( 'An error happened' );
+			loadingCounter = -100;
+		}
+	);
 
 
 	////////////////////////////////////////////
@@ -177,24 +177,41 @@ function init()
 	);
 
 	//wait until loaded
-	var loadingHandle = setInterval(function() {
+	var loadingHandle = setInterval( function() 
+	{
 
 		console.log("Loading...")
 
 		if (loadingCounter >= LOAD_MAX) {
 
 			console.log("LOADING COMPLETE!")
-			clearInterval(loadingHandle);
+			clearInterval( loadingHandle );
 
-			sceneInit(audioListener);
+			sceneInit( audioListener );
 		}
 
-		if (loadingCounter < 0) {
+		if ( loadingCounter < 0 ) {
 			console.log("Error Loading");
 		}
 
 	}, 50);
 }
+
+// //NEW MENU TOGGLE
+// function toggleMenu() 
+// {
+// 	console.log("TOGGLE MENU RUNNING");
+
+// 	var ui = document.getElementById("UI");
+
+// 	if (ui.style.display === "none") {
+//    		ui.style.display = "block";
+//    		console.log("menu on");
+// 	} else {
+//     	ui.style.display = "none";
+//     	console.log("menu off");
+// 	}
+// }
 
 function sceneInit(audioListener) {
 
@@ -339,7 +356,7 @@ function createMap(n) {
 
 	var curve = new THREE.EllipseCurve(
 	0,  0,            // ax, aY
-	2, 2,           // xRadius, yRadius
+	2, 2,             // xRadius, yRadius
 	0,  2 * Math.PI,  // aStartAngle, aEndAngle
 	false,            // aClockwise
 	0                 // aRotation
@@ -614,7 +631,6 @@ function onKeyDown(event)
 
 
     //Toggle sound 
-
 	//Push 0
 	if (keyCode == 48 && mute == false) 
     {
@@ -627,26 +643,20 @@ function onKeyDown(event)
     	mute = false;
     }
 
-    //Toggle Menu 
 
-    /* At the moment only works on map size 4... 
-    need to find a way to re-render in front of camera
-    based on zoom */
-
+    //Toggle Menu
+    var ui = document.getElementById("menuIMG");
     //Push M
-	if (keyCode == 77 && menu == true) 
+	if (keyCode == 77 && ui.width == "1000") 
     {
-    	menu = false;
-    	menuSprite.position.y = menuPositionOff;
-    	console.log("menu off");
-
+    	ui.width = 0;
     } 
-    else if(keyCode == 77 && menu == false) 
+    else if(keyCode == 77 && ui.width == "0") 
     {
-    	menu = true;
-    	menuSprite.position.y = menuPositionOn;
-    	console.log("menu on");
+    	ui.width = 1000;
     }
+
+
 
 }
 
