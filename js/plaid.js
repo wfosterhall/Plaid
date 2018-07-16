@@ -48,12 +48,6 @@ var keymap = {};
 
 var mute = true;
 
-var menu = true;
-var menuPositionOn = 39.1;
-var menuPositionOff = 0;
-var menuSprite;
-
-
 var loadingCounter = 0;
 
 const LOAD_MAX = 2; //change for how many objects we have to load
@@ -197,21 +191,6 @@ function init()
 	}, 50);
 }
 
-// //NEW MENU TOGGLE
-// function toggleMenu() 
-// {
-// 	console.log("TOGGLE MENU RUNNING");
-
-// 	var ui = document.getElementById("UI");
-
-// 	if (ui.style.display === "none") {
-//    		ui.style.display = "block";
-//    		console.log("menu on");
-// 	} else {
-//     	ui.style.display = "none";
-//     	console.log("menu off");
-// 	}
-// }
 
 function sceneInit(audioListener) {
 
@@ -250,40 +229,6 @@ function sceneInit(audioListener) {
 	cameraO.lookAt( baseScene.position ); //Camera always looks at origin
 
 	camera = cameraP;
-
-	//dont need to add camera, causes funny bugs
-	//baseScene.add(camera); 
-
-	// //Add camera toggle instructions
-	// container = document.createElement( 'div' );
-	// document.body.appendChild( container );
-	// var info = document.createElement( 'div' );
-	// info.style.position = 'absolute';
-	// info.style.top = '30px';
-	// info.style.width = '100%';
-	// info.style.textAlign = 'center';
-	// info.innerHTML = 'M: Toggle Menu';
-	// container.appendChild( info );
-
-	////////////////////////////////////////////
-	/*                  MENU                  */
-	////////////////////////////////////////////
-
-	// //Make a new sprite and texture with intro
-	// var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
-	// var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
-	
-	// //Add sprite to scene 
-	// menuSprite = new THREE.Sprite( spriteMaterial );
-	// //baseScene.add( menuSprite );
-
-	// //Position on intro page 
-	// menu = false;
-	// menuSprite.scale.x = 1.5;
-	// menuSprite.position.x = 39;
-	// menuSprite.position.y = menuPositionOn;
-	// menuSprite.position.z = 39;
-
 
 	////////////////////////////////////////////
 	/*                 LIGHTS                 */
@@ -655,7 +600,6 @@ function onKeyDown(event)
     {
     	ui.width = 1000;
     }
-
 
 
 }
