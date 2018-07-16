@@ -25,7 +25,7 @@ var menuSprite;
 var zoom = 0.1;
 
 //change map size here, camera will update automatically
-const MAP_SIZE = 4;
+const HOME_SIZE = 4;
 const MAX_SPEED = 3;
 
 var tree;
@@ -34,7 +34,6 @@ var trees = [];
 var jackModel;
 
 var lumberjack; //to store our character object
-
 
 var money = 0;
 var wood = 0;
@@ -199,10 +198,7 @@ function init()
 function sceneInit(audioListener) {
 
 	//Create scenes
-	baseScene = new THREE.Scene();
-	//homeScene = new THREE.Scene();
-	//currentScene = new THREE.Scene();
- 
+	baseScene = new THREE.Scene(); 
 
 	baseScene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
 
@@ -222,7 +218,7 @@ function sceneInit(audioListener) {
 	cameraO.add( audioListener );
 
 	//Adjust Ocamera, set up isometric view
-	var camDist = MAP_SIZE * 10;
+	var camDist = HOME_SIZE * 10;
 
 	cameraP.position.set( camDist, camDist, camDist ); //Camera equal distance away
 	cameraP.lookAt( baseScene.position ); //Camera always looks at origin
@@ -262,7 +258,7 @@ function sceneInit(audioListener) {
 	baseScene.add( menuSprite );
 
 	//Position on intro page 
-	menu = true;
+	menuSprite.visible = true;
 	menuSprite.scale.x = 1.5;
 	menuSprite.position.x = 39;
 	menuSprite.position.y = menuPositionOn;
@@ -293,7 +289,7 @@ function sceneInit(audioListener) {
 
 	currentScene = homeScene;
 
-	createMap(MAP_SIZE);
+	createMap(HOME_SIZE);
 	render();
 
 }
@@ -302,6 +298,11 @@ function sceneInit(audioListener) {
 function createMap(n) {
 
 	//Lay tiles for an n*n game board 
+
+	currentScene.MAP_SIZE = n;
+	map = [];
+
+	trees = [];
 
 	for (var j = 0; j < n; j++)
 	{
@@ -438,16 +439,12 @@ function update(dt) {
 	var lighty = Math.cos( timeStamp );
 	var lightz = Math.sin( timeStamp );
 
-	directionalLight.position.set( MAP_SIZE*lightx, MAP_SIZE*lighty, MAP_SIZE*lightz );
+	directionalLight.position.set( currentScene.MAP_SIZE*lightx, currentScene.MAP_SIZE*lighty, currentScene.MAP_SIZE*lightz );
 
 
 	moveLumberJack(dt);
 
 	debugLines.position.set(lumberjack.position.x, lumberjack.position.y, lumberjack.position.z  );
-
-	//checkiing ground collisions
-
-
 
 }
 
@@ -455,12 +452,10 @@ function moveLumberJack(dt) {
 
 	//get map coordinates
 
-	//console.log (mx + ':' + mz)
-
 	JackControls();
 
 		//check if on the map
-	if (lumberjack.position.x + lumberjack.radius > MAP_SIZE * 5 || lumberjack.position.x + 2 * lumberjack.radius < - MAP_SIZE * 5 || lumberjack.position.z + lumberjack.radius > MAP_SIZE * 5 || lumberjack.position.z + 2 * lumberjack.radius < - MAP_SIZE * 5)
+	if (lumberjack.position.x + lumberjack.radius > currentScene.MAP_SIZE * 5 || lumberjack.position.x + 2 * lumberjack.radius < - currentScene.MAP_SIZE * 5 || lumberjack.position.z + lumberjack.radius > currentScene.MAP_SIZE * 5 || lumberjack.position.z + 2 * lumberjack.radius < - currentScene.MAP_SIZE * 5)
 	{
 		lumberjack.isGrounded = false;
 		lumberjack.isFalling = true;
@@ -508,16 +503,16 @@ function moveLumberJack(dt) {
 
 	//check collisions with neighbouring boxes
 
-	var newx = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
-	var newz = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
+	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
+	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
 
-	//console.log (map[newz * MAP_SIZE + newx]);
+	//console.log (map[newz * currentScene.MAP_SIZE + newx]);
 	
 	//apply velocities
 	lumberjack.position.y += lumberjack.vel[1] * dt;
 
 	//check if can walk
-	if (map[newz * MAP_SIZE + newx] == 0) {
+	if (map[newz * currentScene.MAP_SIZE + newx] == 0) {
 		
 		lumberjack.position.x += lumberjack.vel[0] * dt;
 		lumberjack.position.z += lumberjack.vel[2] * dt;
@@ -539,7 +534,7 @@ function moveLumberJack(dt) {
 	if (lumberjack.isFalling && lumberjack.position.y < -1000) {
 
 		lumberjack.isFalling = false;
-		lumberjack.position.set(0, 4.5, ( MAP_SIZE/2 - 1 )* 10);
+		lumberjack.position.set(0, 4.5, ( currentScene.MAP_SIZE/2 - 1 )* 10);
 	}
 
 
@@ -550,9 +545,10 @@ function onKeyUp(event)
 
 	var keyCode = event.which;
 
+	keymap[keyCode] = false;
+
 	//console.log(keyCode);
 
-	keymap[keyCode] = false;
 
 }
 	
@@ -637,13 +633,13 @@ function onKeyDown(event)
     //Push M
 	if (keyCode == 77 && menu == true) 
     {
-    	menu = false;
+    	menuSprite.visible = false;
     	menuSprite.position.y = menuPositionOff;
 
     } 
     else if(keyCode == 77 && menu == false) 
     {
-    	menu = true;
+    	menuSprite.visible = true;
     	menuSprite.position.y = menuPositionOn;
     }
 
@@ -651,10 +647,10 @@ function onKeyDown(event)
 
 function JackControls () {
 
+	//Lumberjack Controls 
+
 	//Lumberjack movement speed 
 	var speed = 2;
-
-	//Lumberjack Controls 
 
     //Push W
 	if (keymap[87]) 
@@ -732,17 +728,17 @@ function interact() {
 
 	console.log(dirX + ':' + dirZ);
 
-	var posX = MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
-	var posZ = MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirZ * reach)/10) ;
+	var posX = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
+	var posZ = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirZ * reach)/10) ;
 
-	var tile = map[posZ * MAP_SIZE + posX];
+	var tile = map[posZ * currentScene.MAP_SIZE + posX];
 
 	console.log(tile);
 
 	//remove collision
 	if (tile == 1) {
 		//interacting with a tree
-		map[posZ * MAP_SIZE + posX] = 0;
+		map[posZ * currentScene.MAP_SIZE + posX] = 0;
 
 		//remove tree
 		for (var i = trees.length - 1; i >= 0; i--) {
@@ -761,6 +757,7 @@ function interact() {
 		levelScene = new THREE.Scene();
 		levelScene = baseScene.clone();
 		currentScene = levelScene;
+		createMap(Math.floor(3 + Math.random() * 5));
 
 	}
 
