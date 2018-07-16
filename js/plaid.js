@@ -237,36 +237,35 @@ function sceneInit(audioListener) {
 	//dont need to add camera, causes funny bugs
 	//baseScene.add(camera); 
 
-	//Add camera toggle instructions
-	container = document.createElement( 'div' );
-	document.body.appendChild( container );
-	var info = document.createElement( 'div' );
-	info.style.position = 'absolute';
-	info.style.top = '30px';
-	info.style.width = '100%';
-	info.style.textAlign = 'center';
-	info.innerHTML = 'M: Toggle Menu';
-	container.appendChild( info );
-
+	// //Add camera toggle instructions
+	// container = document.createElement( 'div' );
+	// document.body.appendChild( container );
+	// var info = document.createElement( 'div' );
+	// info.style.position = 'absolute';
+	// info.style.top = '30px';
+	// info.style.width = '100%';
+	// info.style.textAlign = 'center';
+	// info.innerHTML = 'M: Toggle Menu';
+	// container.appendChild( info );
 
 	////////////////////////////////////////////
 	/*                  MENU                  */
 	////////////////////////////////////////////
 
-	//Make a new sprite and texture with intro
-	var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
-	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+	// //Make a new sprite and texture with intro
+	// var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
+	// var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
 	
-	//Add sprite to scene 
-	menuSprite = new THREE.Sprite( spriteMaterial );
-	baseScene.add( menuSprite );
+	// //Add sprite to scene 
+	// menuSprite = new THREE.Sprite( spriteMaterial );
+	// //baseScene.add( menuSprite );
 
-	//Position on intro page 
-	menu = true;
-	menuSprite.scale.x = 1.5;
-	menuSprite.position.x = 39;
-	menuSprite.position.y = menuPositionOn;
-	menuSprite.position.z = 39;
+	// //Position on intro page 
+	// menu = false;
+	// menuSprite.scale.x = 1.5;
+	// menuSprite.position.x = 39;
+	// menuSprite.position.y = menuPositionOn;
+	// menuSprite.position.z = 39;
 
 
 	////////////////////////////////////////////
@@ -639,12 +638,14 @@ function onKeyDown(event)
     {
     	menu = false;
     	menuSprite.position.y = menuPositionOff;
+    	console.log("menu off");
 
     } 
     else if(keyCode == 77 && menu == false) 
     {
     	menu = true;
     	menuSprite.position.y = menuPositionOn;
+    	console.log("menu on");
     }
 
 }
