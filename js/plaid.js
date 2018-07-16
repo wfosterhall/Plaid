@@ -20,8 +20,8 @@ var currentScene, homeScene, levelScene;
 var directionalLight;
 var backgroundMusic;
 var chopSound;
-var newTree;
-var menuSprite;
+
+var menuOpen = true;
 
 var zoom = 0.1;
 
@@ -29,10 +29,18 @@ var zoom = 0.1;
 const HOME_SIZE = 4;
 const MAX_SPEED = 3;
 
-var tree;
-var trees = [];
 
-var jackModel;
+//Preloaded objects
+var treePrefab;
+
+var jackPrefab;
+
+var beanstalkPrefab;
+
+var rockPrefab;
+
+
+var trees = [];
 
 var lumberjack; //to store our character object
 
@@ -159,7 +167,7 @@ function init()
 		function ( gltf ) {
 
 			console.log(gltf.scene.children);
-			tree = gltf.scene.children[0];
+			treePrefab = gltf.scene.children[0];
 			loadingCounter++;
 		},
 
@@ -170,7 +178,7 @@ function init()
 
 		// onError callback
 		function( err ) {
-			console.log( 'An error occured' );
+			console.log( 'An error occurred' );
 			loadingCounter = -100;
 		}
 	);
@@ -183,7 +191,7 @@ function init()
 		function ( gltf ) {
 
 			console.log(gltf.scene.children);
-			jackModel = gltf.scene.children[0];
+			jackPrefab = gltf.scene.children[0];
 			loadingCounter++;
 		},
 
@@ -194,7 +202,31 @@ function init()
 
 		// onError callback
 		function( err ) {
-			console.log( 'An error occured' );
+			console.log( 'An error occurred' );
+			loadingCounter = -100;
+		}
+	);
+
+	loader.load(
+	// resource URL
+		'resources/beanstalk.gltf',
+
+		// onLoad callback
+		function ( gltf ) {
+
+			console.log(gltf.scene.children);
+			beanstalkPrefab = gltf.scene.children[0];
+			loadingCounter++;
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function( err ) {
+			console.log( 'An error occurred' );
 			loadingCounter = -100;
 		}
 	);
@@ -317,7 +349,7 @@ function createMap(n) {
 
 	//adding our character to the left most tile
 
-	lumberjack = jackModel.clone();
+	lumberjack = jackPrefab.clone();
 
 	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
 
@@ -365,9 +397,9 @@ function layTile(x, z, val, n)
 	var col = [ 0x228b22, 0x016c02 ];
 
 	//add a tree
-	if ( val > 0.7) {
+	if (val == 1) {
 
-		newTree = tree.clone();
+		newTree = treePrefab.clone();
 		newTree.scale.y = 2;
 
 		newTree.position.set( nx, 2, nz );
@@ -378,6 +410,26 @@ function layTile(x, z, val, n)
 		currentScene.add(newTree);
 
 		trees.push(newTree);
+
+	}
+	else if (val == 2) {
+	//rock
+
+
+
+	} else if (val == 3) {
+	//bean stalk
+
+		beanstalk = beanstalkPrefab.clone();
+		beanstalk.scale.y = 1;
+
+		beanstalk.position.set( nx, 2, nz );
+
+		beanstalk.mapX = x;
+		beanstalk.mapZ = z;
+
+		currentScene.add(beanstalk);
+
 
 	}
 
@@ -618,13 +670,15 @@ function onKeyDown(event)
     //Toggle Menu
     var ui = document.getElementById("menuIMG");
     //Push M
-	if (keyCode == 77 && ui.width == "1000") 
+	if (keyCode == 77 && menuOpen) 
     {
-    	ui.width = 0;
+    	ui.style.display = 'none';
+    	menuOpen = false;
     } 
-    else if(keyCode == 77 && ui.width == "0") 
+    else if(keyCode == 77 && !menuOpen) 
     {
-    	ui.width = 1000;
+    	ui.style.display = 'inline';
+    	menuOpen = true;
     }
 
 
