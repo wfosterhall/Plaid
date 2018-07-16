@@ -19,6 +19,7 @@ var currentScene, homeScene, levelScene;
 
 var directionalLight;
 var backgroundMusic;
+var chopSound;
 var newTree;
 var menuSprite;
 
@@ -50,7 +51,7 @@ var mute = true;
 
 var loadingCounter = 0;
 
-const LOAD_MAX = 2; //change for how many objects we have to load
+const LOAD_MAX = 3; //change for how many objects we have to load
 
 var debugLines;
 
@@ -86,11 +87,12 @@ function init()
 
 	// instantiate audio object
 	backgroundMusic = new THREE.Audio( audioListener );
+	chopSound = new THREE.Audio( audioListener );
 
 	// instantiate a loader
 	var loader = new THREE.AudioLoader();
 
-	//load a resource
+	//load background music
 	loader.load(
 		// resource URL
 		'resources/backgroundMusic.mp3',
@@ -113,6 +115,34 @@ function init()
 			loadingCounter = -100;
 		}
 	);
+
+		// instantiate a loader
+	var loaderCHOP = new THREE.AudioLoader();
+
+	//load chopping sound 
+	loaderCHOP.load(
+		// resource URL
+		'resources/chop.mp3',
+
+		// onLoad callback
+		function ( audioBuffer ) {
+			// set the audio object buffer to the loaded object
+			chopSound.setBuffer( audioBuffer );
+			loadingCounter++;
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function ( err ) {
+			console.log( 'An error happened' );
+			loadingCounter = -100;
+		}
+	);
+
 
 
 	////////////////////////////////////////////
@@ -649,9 +679,11 @@ function JackControls () {
     	}
     }
 
+    //Push E
     if (keymap[69])
     {
     	interact();
+    	chopSound.play();
     	keymap[69] = false;
     }
 }
