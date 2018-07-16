@@ -577,7 +577,9 @@ function moveLumberJack(dt) {
 	if (lumberjack.isFalling && lumberjack.position.y < -1000) {
 
 		lumberjack.isFalling = false;
+		currentScene = homeScene;
 		lumberjack.position.set(0, 4.5, ( currentScene.MAP_SIZE/2 - 1 )* 10);
+
 	}
 
 
@@ -736,6 +738,7 @@ function JackControls () {
     	chopSound.play();
     	keymap[69] = false;
     }
+
 }
 
 function interact() {
