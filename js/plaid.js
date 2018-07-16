@@ -27,7 +27,7 @@ var zoom = 0.1;
 
 //change map size here, camera will update automatically
 const HOME_SIZE = 4;
-const MAX_SPEED = 3;
+const MAX_SPEED = 5;
 
 
 //Preloaded objects
@@ -58,7 +58,7 @@ var mute = true;
 
 var loadingCounter = 0;
 
-const LOAD_MAX = 3; //change for how many objects we have to load
+const LOAD_MAX = 4; //change for how many objects we have to load
 
 var debugLines;
 
@@ -469,7 +469,7 @@ function render()
 
 
     //have temporarily changed this to debug
-	update( 0.1 );
+	update( dt );
 
 };
 
@@ -544,7 +544,7 @@ function moveLumberJack(dt) {
 
 
 
-	//check collisions with neighbouring boxes
+	//check collisions with neighboring boxes
 
 	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
 	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
@@ -689,7 +689,7 @@ function JackControls () {
 	//Lumberjack Controls 
 
 	//Lumberjack movement speed 
-	var speed = 2;
+	var speed = 5;
 
     //Push W
 	if (keymap[87]) 
