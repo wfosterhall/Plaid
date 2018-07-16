@@ -19,6 +19,7 @@ var currentScene, homeScene, levelScene;
 
 var directionalLight;
 var backgroundMusic;
+var chopSound;
 var newTree;
 var menuSprite;
 
@@ -47,15 +48,9 @@ var keymap = {};
 
 var mute = true;
 
-var menu = true;
-var menuPositionOn = 39.1;
-var menuPositionOff = 0;
-var menuSprite;
-
-
 var loadingCounter = 0;
 
-const LOAD_MAX = 2; //change for how many objects we have to load
+const LOAD_MAX = 3; //change for how many objects we have to load
 
 var debugLines;
 
@@ -89,35 +84,64 @@ function init()
 	// instantiate a listener
 	var audioListener = new THREE.AudioListener();
 
-	// // instantiate audio object
-	// backgroundMusic = new THREE.Audio( audioListener );
+	// instantiate audio object
+	backgroundMusic = new THREE.Audio( audioListener );
+	chopSound = new THREE.Audio( audioListener );
 
-	// // instantiate a loader
-	// var loader = new THREE.AudioLoader();
+	// instantiate a loader
+	var loader = new THREE.AudioLoader();
 
-	// //load a resource
-	// loader.load(
-	// 	// resource URL
-	// 	'resources/backgroundMusic.mp3',
+	//load background music
+	loader.load(
+		// resource URL
+		'resources/backgroundMusic.mp3',
 
-	// 	// onLoad callback
-	// 	function ( audioBuffer ) {
-	// 		// set the audio object buffer to the loaded object
-	// 		backgroundMusic.setBuffer( audioBuffer );
-	// 		loadingCounter++;
-	// 	},
+		// onLoad callback
+		function ( audioBuffer ) {
+			// set the audio object buffer to the loaded object
+			backgroundMusic.setBuffer( audioBuffer );
+			loadingCounter++;
+		},
 
-	// 	// onProgress callback
-	// 	function ( xhr ) {
-	// 		console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-	// 	},
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
 
-	// 	// onError callback
-	// 	function ( err ) {
-	// 		console.log( 'An error happened' );
-	// 		loadingCounter = -100;
-	// 	}
-	// );
+		// onError callback
+		function ( err ) {
+			console.log( 'An error happened' );
+			loadingCounter = -100;
+		}
+	);
+
+		// instantiate a loader
+	var loaderCHOP = new THREE.AudioLoader();
+
+	//load chopping sound 
+	loaderCHOP.load(
+		// resource URL
+		'resources/chop.mp3',
+
+		// onLoad callback
+		function ( audioBuffer ) {
+			// set the audio object buffer to the loaded object
+			chopSound.setBuffer( audioBuffer );
+			loadingCounter++;
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function ( err ) {
+			console.log( 'An error happened' );
+			loadingCounter = -100;
+		}
+	);
+
 
 
 	////////////////////////////////////////////
@@ -176,24 +200,26 @@ function init()
 	);
 
 	//wait until loaded
-	var loadingHandle = setInterval(function() {
+	var loadingHandle = setInterval( function() 
+	{
 
 		console.log("Loading...")
 
 		if (loadingCounter >= LOAD_MAX) {
 
 			console.log("LOADING COMPLETE!")
-			clearInterval(loadingHandle);
+			clearInterval( loadingHandle );
 
-			sceneInit(audioListener);
+			sceneInit( audioListener );
 		}
 
-		if (loadingCounter < 0) {
+		if ( loadingCounter < 0 ) {
 			console.log("Error Loading");
 		}
 
 	}, 50);
 }
+
 
 function sceneInit(audioListener) {
 
@@ -229,41 +255,6 @@ function sceneInit(audioListener) {
 	cameraO.lookAt( baseScene.position ); //Camera always looks at origin
 
 	camera = cameraP;
-
-	//dont need to add camera, causes funny bugs
-	//baseScene.add(camera); 
-
-	//Add camera toggle instructions
-	container = document.createElement( 'div' );
-	document.body.appendChild( container );
-	var info = document.createElement( 'div' );
-	info.style.position = 'absolute';
-	info.style.top = '30px';
-	info.style.width = '100%';
-	info.style.textAlign = 'center';
-	info.innerHTML = 'M: Toggle Menu';
-	container.appendChild( info );
-
-
-	////////////////////////////////////////////
-	/*                  MENU                  */
-	////////////////////////////////////////////
-
-	//Make a new sprite and texture with intro
-	var spriteMap = new THREE.TextureLoader().load( "resources/menuPLACEHOLDER.png" );
-	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
-	
-	//Add sprite to scene 
-	menuSprite = new THREE.Sprite( spriteMaterial );
-	baseScene.add( menuSprite );
-
-	//Position on intro page 
-	menuSprite.visible = true;
-	menuSprite.scale.x = 1.5;
-	menuSprite.position.x = 39;
-	menuSprite.position.y = menuPositionOn;
-	menuSprite.position.z = 39;
-
 
 	////////////////////////////////////////////
 	/*                 LIGHTS                 */
@@ -341,7 +332,7 @@ function createMap(n) {
 
 	var curve = new THREE.EllipseCurve(
 	0,  0,            // ax, aY
-	2, 2,           // xRadius, yRadius
+	2, 2,             // xRadius, yRadius
 	0,  2 * Math.PI,  // aStartAngle, aEndAngle
 	false,            // aClockwise
 	0                 // aRotation
@@ -611,7 +602,6 @@ function onKeyDown(event)
 
 
     //Toggle sound 
-
 	//Push 0
 	if (keyCode == 48 && mute == false) 
     {
@@ -624,24 +614,19 @@ function onKeyDown(event)
     	mute = false;
     }
 
-    //Toggle Menu 
 
-    /* At the moment only works on map size 4... 
-    need to find a way to re-render in front of camera
-    based on zoom */
-
+    //Toggle Menu
+    var ui = document.getElementById("menuIMG");
     //Push M
-	if (keyCode == 77 && menu == true) 
+	if (keyCode == 77 && ui.width == "1000") 
     {
-    	menuSprite.visible = false;
-    	menuSprite.position.y = menuPositionOff;
-
+    	ui.width = 0;
     } 
-    else if(keyCode == 77 && menu == false) 
+    else if(keyCode == 77 && ui.width == "0") 
     {
-    	menuSprite.visible = true;
-    	menuSprite.position.y = menuPositionOn;
+    	ui.width = 1000;
     }
+
 
 }
 
@@ -690,9 +675,11 @@ function JackControls () {
     	}
     }
 
+    //Push E
     if (keymap[69])
     {
     	interact();
+    	chopSound.play();
     	keymap[69] = false;
     }
 }
