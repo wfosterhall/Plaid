@@ -729,7 +729,7 @@ function JackControls () {
 	//Lumberjack Controls 
 
 	//Lumberjack movement speed 
-	var speed = 5;
+	var speed = 15;
 
     //Push W
 	if (keymap[87]) 
