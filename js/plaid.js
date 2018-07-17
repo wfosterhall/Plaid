@@ -58,7 +58,7 @@ var mute = true;
 
 var loadingCounter = 0;
 
-const LOAD_MAX = 4; //change for how many objects we have to load
+const LOAD_MAX = 6; //change for how many objects we have to load
 
 var debugLines;
 
@@ -97,10 +97,10 @@ function init()
 	chopSound = new THREE.Audio( audioListener );
 
 	// instantiate a loader
-	var loader = new THREE.AudioLoader();
+	var audioLoader = new THREE.AudioLoader();
 
 	//load background music
-	loader.load(
+	audioLoader.load(
 		// resource URL
 		'resources/backgroundMusic.mp3',
 
@@ -123,11 +123,8 @@ function init()
 		}
 	);
 
-		// instantiate a loader
-	var loaderCHOP = new THREE.AudioLoader();
-
 	//load chopping sound 
-	loaderCHOP.load(
+	audioLoader.load(
 		// resource URL
 		'resources/chop.mp3',
 
@@ -157,9 +154,9 @@ function init()
 	////////////////////////////////////////////
 
 	//load our objects
-	var loader = new THREE.GLTFLoader();
+	var gltfLoader = new THREE.GLTFLoader();
 
-	loader.load(
+	gltfLoader.load(
 	// resource URL
 		'resources/tree.gltf',
 
@@ -183,15 +180,15 @@ function init()
 		}
 	);
 
-	loader.load(
+	gltfLoader.load(
 	// resource URL
-		'resources/jack.gltf',
+		'resources/rock.gltf',
 
 		// onLoad callback
 		function ( gltf ) {
 
 			console.log(gltf.scene.children);
-			jackPrefab = gltf.scene.children[0];
+			rockPrefab = gltf.scene.children[0];
 			loadingCounter++;
 		},
 
@@ -207,7 +204,7 @@ function init()
 		}
 	);
 
-	loader.load(
+	gltfLoader.load(
 	// resource URL
 		'resources/beanstalk.gltf',
 
@@ -216,6 +213,30 @@ function init()
 
 			console.log(gltf.scene.children);
 			beanstalkPrefab = gltf.scene.children[0];
+			loadingCounter++;
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function( err ) {
+			console.log( 'An error occurred' );
+			loadingCounter = -100;
+		}
+	);
+
+	gltfLoader.load(
+	// resource URL
+		'resources/jack.gltf',
+
+		// onLoad callback
+		function ( gltf ) {
+
+			console.log(gltf.scene.children);
+			jackPrefab = gltf.scene.children[0];
 			loadingCounter++;
 		},
 
@@ -327,19 +348,24 @@ function createMap(n) {
 
 	trees = [];
 
+	for (var i = 0; i < (n + 2) * (n + 2); i++) {
+		map[i] = 0;
+	}
+
+
 	for (var j = 0; j < n; j++)
 	{
 		for (var i = 0; i < n; i++ )
 		{
 
-			var val = Math.floor( Math.random() * 2 );
+			var val = Math.floor( Math.random() * 3 );
 
 			//MAKE THIS 1 UNIT BIGGER IN ALL DIRECTIONS
 
 			if (j == n/2 && i == n/2)
 				val = 3;
 
-			map[j * n + i] = val;
+			map[(j + 1) * n + (i + 1)] = val;
 
 			layTile(i, j, val, n);
 
@@ -394,7 +420,9 @@ function layTile(x, z, val, n)
 	var nz = (z - n/2 ) * 10;
 
 	//Randomly pick a colour 
-	var col = [ 0x228b22, 0x016c02 ];
+
+	//need to change these
+	var col = [ 0x228b22, 0x016c02, 0x02bc02, 0x1b3e06 ];
 
 	//add a tree
 	if (val == 1) {
@@ -414,6 +442,16 @@ function layTile(x, z, val, n)
 	}
 	else if (val == 2) {
 	//rock
+
+		rock = rockPrefab.clone();
+		rock.scale.y = 1;
+
+		rock.position.set( nx, 2, nz );
+
+		rock.mapX = x;
+		rock.mapZ = z;
+
+		currentScene.add(rock);
 
 
 
@@ -469,7 +507,7 @@ function render()
 
 
     //have temporarily changed this to debug
-	update( dt );
+	update( 0.1 );
 
 };
 
