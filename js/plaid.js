@@ -48,8 +48,6 @@ var money = 0;
 var wood = 0;
 var environment = 0;
 
-var map = [];
-
 var prevtime = 0;
 
 var keymap = {};
@@ -344,12 +342,12 @@ function createMap(n) {
 	//Lay tiles for an n*n game board 
 
 	currentScene.MAP_SIZE = n;
-	map = [];
+	currentScene.map = [];
 
 	trees = [];
 
 	for (var i = 0; i < (n + 2) * (n + 2); i++) {
-		map[i] = 0;
+		currentScene.map[i] = 0;
 	}
 
 
@@ -365,7 +363,7 @@ function createMap(n) {
 			if (j == n/2 && i == n/2)
 				val = 3;
 
-			map[(j + 1) * n + (i + 1)] = val;
+			currentScene.map[(j + 1) * (n + 2) + i] = val;
 
 			layTile(i, j, val, n);
 
@@ -593,7 +591,7 @@ function moveLumberJack(dt) {
 	lumberjack.position.y += lumberjack.vel[1] * dt;
 
 	//check if can walk
-	if (map[newz * currentScene.MAP_SIZE + newx] == 0) {
+	if (currentScene.map[(newz + 1) * (currentScene.MAP_SIZE + 2) + newx] == 0) {
 		
 		lumberjack.position.x += lumberjack.vel[0] * dt;
 		lumberjack.position.z += lumberjack.vel[2] * dt;
@@ -616,6 +614,11 @@ function moveLumberJack(dt) {
 
 		lumberjack.isFalling = false;
 		currentScene = homeScene;
+
+		//this is not the right lumber jack, search scene to find it...
+
+		lumberjack = currentScene.getObjectByName("jack");
+
 		lumberjack.position.set(0, 4.5, ( currentScene.MAP_SIZE/2 - 1 )* 10);
 
 	}
@@ -709,6 +712,7 @@ function onKeyDown(event)
 
     //Toggle Menu
     var ui = document.getElementById("menuIMG");
+
     //Push M
 	if (keyCode == 77 && menuOpen) 
     {
@@ -729,7 +733,7 @@ function JackControls () {
 	//Lumberjack Controls 
 
 	//Lumberjack movement speed 
-	var speed = 15;
+	var speed = 5;
 
     //Push W
 	if (keymap[87]) 
@@ -773,7 +777,6 @@ function JackControls () {
     if (keymap[69])
     {
     	interact();
-    	chopSound.play();
     	keymap[69] = false;
     }
 
@@ -813,14 +816,14 @@ function interact() {
 	var posX = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
 	var posZ = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirZ * reach)/10) ;
 
-	var tile = map[posZ * currentScene.MAP_SIZE + posX];
+	var tile = currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX];
 
 	console.log(tile);
 
 	//remove collision
 	if (tile == 1) {
 		//interacting with a tree
-		map[posZ * currentScene.MAP_SIZE + posX] = 0;
+		currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
 
 		//remove tree
 		for (var i = trees.length - 1; i >= 0; i--) {
@@ -830,6 +833,10 @@ function interact() {
 
 		//add wood
 		wood++;
+
+		//play sound
+		chopSound.play();
+
 	}
 
 	if (tile == 3) {
@@ -842,7 +849,5 @@ function interact() {
 		createMap(Math.floor(3 + Math.random() * 5));
 
 	}
-
-
 
 }
