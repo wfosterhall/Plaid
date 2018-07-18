@@ -346,36 +346,9 @@ function createMap(n) {
 
 	trees = [];
 
-	for (var i = 0; i < (n + 2) * (n + 2); i++) {
-		currentScene.map[i] = 0;
-	}
-
-
-	for (var j = 0; j < n; j++)
-	{
-		for (var i = 0; i < n; i++ )
-		{
-
-			var val = Math.floor( Math.random() * 3 );
-
-			//MAKE THIS 1 UNIT BIGGER IN ALL DIRECTIONS
-
-			if (j == n/2 && i == n/2)
-				val = 3;
-
-			currentScene.map[(j + 1) * (n + 2) + i] = val;
-
-			layTile(i, j, val, n);
-
-		}
-	}
-
-
 	//adding our character to the left most tile
 
 	lumberjack = jackPrefab.clone();
-
-	lumberjack.position.set(0, 4.5, ( n/2 - 1 )* 10);
 
 	lumberjack.vel = [0, 0, 0];
 
@@ -383,6 +356,51 @@ function createMap(n) {
 	lumberjack.isFalling = false;
 	lumberjack.radius = 2;
 	currentScene.add( lumberjack );
+
+	for (var i = 0; i < (n + 2) * (n + 2); i++) {
+		currentScene.map[i] = 0;
+	}
+
+	for (var j = 0; j < n; j++)
+	{
+		for (var i = 0; i < n; i++ )
+		{
+
+			var val = Math.floor( Math.random() * 4 );
+
+			currentScene.map[(j + 1) * (n + 2) + i] = val;
+
+
+		}
+	}
+
+
+	var beanX = Math.floor( Math.random() * n);
+
+	currentScene.map[n + 2 + beanX] = 4;
+
+	var jackX = Math.floor( Math.random() * n);
+
+	currentScene.map[n * (n + 2) + jackX] = -1;
+
+
+	for (var j = 0; j < n; j++)
+	{
+		for (var i = 0; i < n; i++ )
+		{
+
+			var val = currentScene.map[(j + 1) * (n + 2) + i];
+
+			if (val == -1) {
+				val = 0;
+				lumberjack.position.set((i - n/2 ) * 10, 4.5, (j - n/2 ) * 10);
+
+			}
+
+			layTile(i, j, val, n);
+
+		}
+	}
 
 	//circle for debugging collisions
 
@@ -437,8 +455,7 @@ function layTile(x, z, val, n)
 
 		trees.push(newTree);
 
-	}
-	else if (val == 2) {
+	} else if (val == 2) {
 	//rock
 
 		rock = rockPrefab.clone();
@@ -454,6 +471,11 @@ function layTile(x, z, val, n)
 
 
 	} else if (val == 3) {
+		//$$$
+
+
+
+	} else if (val == 4) {
 	//bean stalk
 
 		beanstalk = beanstalkPrefab.clone();
@@ -839,7 +861,18 @@ function interact() {
 
 	}
 
+	if (tile == 2) {
+		//tile is rock do nothing
+	}
+
 	if (tile == 3) {
+		//tile is $$$
+		//inc $$$
+
+		currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
+	}
+
+	if (tile == 4) {
 		//interacting with beanstalk
 
 		//move to a new function
