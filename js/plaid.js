@@ -334,6 +334,14 @@ function sceneInit(audioListener) {
 	createMap(HOME_SIZE);
 	render();
 
+
+	////////////////////////////////////////////
+	/*                  STATS                 */
+	////////////////////////////////////////////
+
+	document.getElementById("moneyDISP").innerHTML = money;
+	document.getElementById("woodDISP").innerHTML = wood;
+
 }
 
 
@@ -546,6 +554,11 @@ function update(dt) {
 	moveLumberJack(dt);
 
 	debugLines.position.set(lumberjack.position.x, lumberjack.position.y, lumberjack.position.z  );
+
+	//Update stats
+	document.getElementById("moneyDISP").innerHTML = money;
+	document.getElementById("woodDISP").innerHTML = wood;
+
 
 }
 
