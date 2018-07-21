@@ -46,7 +46,7 @@ var lumberjack; //to store our character object
 
 var money = 0;
 var wood = 0;
-var environment = 0;
+var level = 0;
 
 var prevtime = 0;
 
@@ -334,14 +334,6 @@ function sceneInit(audioListener) {
 	createMap(HOME_SIZE);
 	render();
 
-
-	////////////////////////////////////////////
-	/*                  STATS                 */
-	////////////////////////////////////////////
-
-	document.getElementById("moneyDISP").innerHTML = money;
-	document.getElementById("woodDISP").innerHTML = wood;
-
 }
 
 
@@ -558,7 +550,16 @@ function update(dt) {
 	//Update stats
 	document.getElementById("moneyDISP").innerHTML = money;
 	document.getElementById("woodDISP").innerHTML = wood;
-
+	
+	if(level == 0)
+	{
+		document.getElementById("levelDISP").innerHTML = "home";
+		level = 0;
+	}
+	else
+	{	
+		document.getElementById("levelDISP").innerHTML = level;
+	}
 
 }
 
@@ -655,6 +656,8 @@ function moveLumberJack(dt) {
 		lumberjack = currentScene.getObjectByName("jack");
 
 		lumberjack.position.set(0, 4.5, ( currentScene.MAP_SIZE/2 - 1 )* 10);
+
+		level = 0;
 
 	}
 
@@ -893,6 +896,7 @@ function interact() {
 		levelScene = baseScene.clone();
 		currentScene = levelScene;
 		createMap(Math.floor(3 + Math.random() * 5));
+		level++;
 
 	}
 
