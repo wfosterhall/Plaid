@@ -6,6 +6,6 @@ Authors: Will Foster-Hall, Reuben Bishop
 
 To run the game follow this link:
 
-wfosterhall.github.io/Plaid
+https://wfosterhall.github.io/Plaid
  
 ![titlescreen](GameplayTitle.PNG)
