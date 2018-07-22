@@ -8,4 +8,4 @@ To run the game follow this link:
 
 wfosterhall.github.io/Plaid
  
-!(http://github.com/wfosterhall/Plaid/blob/master/GameplayTitle.PNG)
+!(https://raw.githubusercontent.com/wfosterhall/plaid/master/GameplayTitle.PNG)
