@@ -563,7 +563,7 @@ function layTile(x, z, val, n)
 	//Randomly pick a colour 
 
 	//need to change these
-	var col = [ 0x228b22, 0x016c02, 0x02bc02, 0x1b3e06 ];
+	var col = [ 0x228b22, 0x016c02, 0x02bc02, 0x1b3e06, 0x8CE898];
 
 	//add a tree
 	if (val == 1) {
@@ -1025,7 +1025,8 @@ function interact() {
 	if (tile == 3) {
 		//tile is $$$
 		//inc $$$
-
+		money++;
+		
 		currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
 	}
 
