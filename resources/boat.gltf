@@ -1,6 +1,34 @@
 {
     "accessors": [
         {
+            "bufferView": 2,
+            "byteOffset": 0,
+            "componentType": 5123,
+            "count": 516,
+            "max": [
+                367
+            ],
+            "min": [
+                0
+            ],
+            "name": "accessor_buffer_boatMesh_0",
+            "type": "SCALAR"
+        },
+        {
+            "bufferView": 3,
+            "byteOffset": 0,
+            "componentType": 5123,
+            "count": 36,
+            "max": [
+                343
+            ],
+            "min": [
+                6
+            ],
+            "name": "accessor_buffer_boatMesh_1",
+            "type": "SCALAR"
+        },
+        {
             "bufferView": 0,
             "byteOffset": 0,
             "componentType": 5126,
@@ -35,34 +63,6 @@
             ],
             "name": "accessor_buffer_boatMesh_NORMAL_0",
             "type": "VEC3"
-        },
-        {
-            "bufferView": 2,
-            "byteOffset": 0,
-            "componentType": 5123,
-            "count": 516,
-            "max": [
-                367
-            ],
-            "min": [
-                0
-            ],
-            "name": "accessor_buffer_boatMesh_0",
-            "type": "SCALAR"
-        },
-        {
-            "bufferView": 3,
-            "byteOffset": 0,
-            "componentType": 5123,
-            "count": 36,
-            "max": [
-                343
-            ],
-            "min": [
-                6
-            ],
-            "name": "accessor_buffer_boatMesh_1",
-            "type": "SCALAR"
         }
     ],
     "asset": {
@@ -157,19 +157,19 @@
             "primitives": [
                 {
                     "attributes": {
-                        "NORMAL": 1,
-                        "POSITION": 0
+                        "NORMAL": 3,
+                        "POSITION": 2
                     },
-                    "indices": 2,
+                    "indices": 0,
                     "material": 0,
                     "mode": 4
                 },
                 {
                     "attributes": {
-                        "NORMAL": 1,
-                        "POSITION": 0
+                        "NORMAL": 3,
+                        "POSITION": 2
                     },
-                    "indices": 3,
+                    "indices": 1,
                     "material": 1,
                     "mode": 4
                 }
@@ -182,9 +182,9 @@
             "name": "boat",
             "rotation": [
                 0.0,
+                -0.7071068286895752,
                 0.0,
-                0.0,
-                1.0
+                0.7071067094802856
             ],
             "scale": [
                 1.0,

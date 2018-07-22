@@ -402,12 +402,17 @@ function sceneInit(audioListener) {
 
 function createMap(n, isHome) {
 
-	//Lay tiles for an n*n game board 
+	//Lay tiles for an n*n game board
+
+	var camDist = n * 10;
+
+	cameraP.position.set( camDist, camDist, camDist );
+	cameraO.position.set( camDist, camDist, camDist );
 
 	currentScene.MAP_SIZE = n;
 	currentScene.map = [];
 
-	trees = [];
+	currentScene.trees = [];
 
 	//adding our character to the left most tile
 
@@ -431,7 +436,7 @@ function createMap(n, isHome) {
 
 			var val = Math.floor( Math.random() * 4 );
 
-			currentScene.map[(j + 1) * (n + 2) + i] = val;
+			currentScene.map[(j + 1) * (n + 2) + i + 1] = val;
 
 
 		}
@@ -495,17 +500,17 @@ function createMap(n, isHome) {
 
 	var numClouds = 2 + Math.floor(Math.random() * (n - 2));
 
-	var vx = Math.random();
+	var vx = 0.5 * Math.random();
 
-	var vz = Math.random();
+	var vz = 0.5 * Math.random();
 
 	for (var i = 0; i < numClouds; i++) {
 		
-		var x = Math.floor(Math.random() * n) * 10;
+		var x = - n + 2 * Math.floor(Math.random() * n) * 10;
 
 		var y = 10 + n * 2;
 
-		var z = Math.floor(Math.random() * n) * 10;
+		var z = - n + 2 * Math.floor(Math.random() * n) * 10;
 
 		if (!isHome) {
 			y = -5;
@@ -573,7 +578,7 @@ function layTile(x, z, val, n)
 
 		currentScene.add(newTree);
 
-		trees.push(newTree);
+		currentScene.trees.push(newTree);
 
 	} else if (val == 2) {
 	//rock
@@ -672,6 +677,18 @@ function update(dt) {
 		clouds[i].position.x += clouds[i].vel[0] * dt;
 		clouds[i].position.z += clouds[i].vel[2] * dt;
 
+		if (clouds[i].position.x < - currentScene.MAP_SIZE * 10)
+			clouds[i].position.x = currentScene.MAP_SIZE * 10;
+
+		if (clouds[i].position.x > currentScene.MAP_SIZE * 10)
+			clouds[i].position.x = - currentScene.MAP_SIZE * 10;
+
+	
+		if (clouds[i].position.z < - currentScene.MAP_SIZE * 10)
+			clouds[i].position.z = currentScene.MAP_SIZE * 10;
+
+		if (clouds[i].position.z > currentScene.MAP_SIZE * 10)
+			clouds[i].position.z = - currentScene.MAP_SIZE * 10;
 	}
 
 	//Update stats
@@ -745,8 +762,8 @@ function moveLumberJack(dt) {
 
 	//check collisions with neighboring boxes
 
-	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0] * dt)/10);
-	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2] * dt)/10);
+	var newx = (currentScene.MAP_SIZE)/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0] * dt)/10);
+	var newz = (currentScene.MAP_SIZE)/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2] * dt)/10);
 
 	//console.log (map[newz * currentScene.MAP_SIZE + newx]);
 	
@@ -799,7 +816,6 @@ function onKeyUp(event)
 	keymap[keyCode] = false;
 
 	//console.log(keyCode);
-
 
 }
 	
@@ -890,6 +906,12 @@ function onKeyDown(event)
     	menuOpen = true;
     }
 
+    //Debug
+    if (keyCode == 188) 
+    {
+    	printMap();
+    } 
+
 }
 
 function JackControls () {
@@ -967,10 +989,13 @@ function interact() {
 
 	console.log(dirX + ':' + dirZ);
 
-	var posX = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
+	var posX = currentScene.MAP_SIZE/2 +  Math.floor((lumberjack.position.x + lumberjack.radius + dirX * reach)/10) ;
 	var posZ = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + dirZ * reach)/10) ;
 
 	var tile = currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX];
+	console.log(posX);
+	console.log(posZ);
+	console.log(currentScene.MAP_SIZE);
 
 	console.log(tile);
 
@@ -980,9 +1005,9 @@ function interact() {
 		currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
 
 		//remove tree
-		for (var i = trees.length - 1; i >= 0; i--) {
-			if (trees[i].mapX == posX && trees[i].mapZ == posZ)
-				currentScene.remove(trees[i]);
+		for (var i = currentScene.trees.length - 1; i >= 0; i--) {
+			if (currentScene.trees[i].mapX == posX && currentScene.trees[i].mapZ == posZ)
+				currentScene.remove(currentScene.trees[i]);
 		}
 
 		//add wood
@@ -1011,9 +1036,27 @@ function interact() {
 		levelScene = new THREE.Scene();
 		levelScene = baseScene.clone();
 		currentScene = levelScene;
-		createMap(Math.floor(3 + Math.random() * 5));
+		var mapSize = Math.floor(4 + level * 2 + - 2 *  Math.floor(Math.random() * (level - 1)));
+		createMap(mapSize);
 		level++;
 
 	}
 
 }
+
+
+function printMap() {
+
+	var size = Math.sqrt(currentScene.map.length);
+
+	var map = currentScene.map;
+
+	console.log(size);
+
+	for (var i = 0; i < size; i++) {
+		console.log(map.slice(i * size, (i + 1) * size));
+	}
+
+	console.log(map);
+}
+
