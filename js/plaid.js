@@ -393,6 +393,7 @@ function createMap(n) {
 
 			if (val == -1) {
 				val = 0;
+				currentScene.map[(j + 1) * (n + 2) + i] = 0;
 				lumberjack.position.set((i - n/2 ) * 10, 4.5, (j - n/2 ) * 10);
 
 			}
@@ -604,8 +605,8 @@ function moveLumberJack(dt) {
 
 	//check collisions with neighboring boxes
 
-	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
-	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
+	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0] * dt)/10);
+	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2] * dt)/10);
 
 	//console.log (map[newz * currentScene.MAP_SIZE + newx]);
 	
@@ -746,7 +747,6 @@ function onKeyDown(event)
     	ui.style.display = 'inline';
     	menuOpen = true;
     }
-
 
 }
 
