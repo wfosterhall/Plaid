@@ -322,6 +322,7 @@ function init()
 			console.log("LOADING COMPLETE!")
 			clearInterval(loadingHandle);
 
+
 			sceneInit(audioListener);
 			enableUI();
 		}
@@ -334,6 +335,10 @@ function init()
 }
 
 function enableUI() {
+
+	var loadingUI = document.getElementById("loadingUI");
+
+	loadingUI.style.visibility = 'hidden';
 
     var UI = document.getElementById("UI");
 
@@ -504,7 +509,7 @@ function createMap(n, isHome) {
 
 	//CLOUDS
 
-	var numClouds = 3 + Math.floor(Math.random() * n);
+	var numClouds = 6 + 2 * Math.floor(Math.random() * n);
 
 	var vx = 0.5 * Math.random();
 
@@ -512,11 +517,11 @@ function createMap(n, isHome) {
 
 	for (var i = 0; i < numClouds; i++) {
 		
-		var x = - n + 2 * Math.floor(Math.random() * n) * 10;
+		var x = 5 * (- n + 2 * Math.floor(Math.random() * n)) * 10;
 
 		var y = 10 + n * 2;
 
-		var z = - n + 2 * Math.floor(Math.random() * n) * 10;
+		var z = 5 * (- n + 2 * Math.floor(Math.random() * n)) * 10;
 
 		if (!isHome) {
 			y = -5;
@@ -683,18 +688,18 @@ function update(dt) {
 		clouds[i].position.x += clouds[i].vel[0] * dt;
 		clouds[i].position.z += clouds[i].vel[2] * dt;
 
-		if (clouds[i].position.x < - currentScene.MAP_SIZE * 10)
-			clouds[i].position.x = currentScene.MAP_SIZE * 10;
+		if (clouds[i].position.x < - 5 * currentScene.MAP_SIZE * 10)
+			clouds[i].position.x = 5 * currentScene.MAP_SIZE * 10;
 
-		if (clouds[i].position.x > currentScene.MAP_SIZE * 10)
-			clouds[i].position.x = - currentScene.MAP_SIZE * 10;
+		if (clouds[i].position.x > 5 * currentScene.MAP_SIZE * 10)
+			clouds[i].position.x = - 5 * currentScene.MAP_SIZE * 10;
 
 	
-		if (clouds[i].position.z < - currentScene.MAP_SIZE * 10)
-			clouds[i].position.z = currentScene.MAP_SIZE * 10;
+		if (clouds[i].position.z < - 5 * currentScene.MAP_SIZE * 10)
+			clouds[i].position.z = 5 * currentScene.MAP_SIZE * 10;
 
-		if (clouds[i].position.z > currentScene.MAP_SIZE * 10)
-			clouds[i].position.z = - currentScene.MAP_SIZE * 10;
+		if (clouds[i].position.z > 5 * currentScene.MAP_SIZE * 10)
+			clouds[i].position.z = - 5 * currentScene.MAP_SIZE * 10;
 	}
 
 	//Update stats
