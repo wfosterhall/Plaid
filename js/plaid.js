@@ -39,8 +39,15 @@ var beanstalkPrefab;
 
 var rockPrefab;
 
+var cloudPrefab;
+
+var seaPrefab;
+
+var boatPrefab;
 
 var trees = [];
+
+var clouds = [];
 
 var lumberjack; //to store our character object
 
@@ -56,7 +63,7 @@ var mute = true;
 
 var loadingCounter = 0;
 
-const LOAD_MAX = 6; //change for how many objects we have to load
+const LOAD_MAX = 8; //change for how many objects we have to load
 
 var debugLines;
 
@@ -250,6 +257,54 @@ function init()
 		}
 	);
 
+	gltfLoader.load(
+	// resource URL
+		'resources/cloud.gltf',
+
+		// onLoad callback
+		function ( gltf ) {
+
+			console.log(gltf.scene.children);
+			cloudPrefab = gltf.scene.children[0];
+			loadingCounter++;
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function( err ) {
+			console.log( 'An error occurred' );
+			loadingCounter = -100;
+		}
+	);
+
+	gltfLoader.load(
+	// resource URL
+		'resources/boat.gltf',
+
+		// onLoad callback
+		function ( gltf ) {
+
+			console.log(gltf.scene.children);
+			boatPrefab = gltf.scene.children[0];
+			loadingCounter++;
+		},
+
+		// onProgress callback
+		function ( xhr ) {
+			console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+		},
+
+		// onError callback
+		function( err ) {
+			console.log( 'An error occurred' );
+			loadingCounter = -100;
+		}
+	);
+
 	//wait until loaded
 	var loadingHandle = setInterval( function() 
 	{
@@ -259,9 +314,10 @@ function init()
 		if (loadingCounter >= LOAD_MAX) {
 
 			console.log("LOADING COMPLETE!")
-			clearInterval( loadingHandle );
+			clearInterval(loadingHandle);
 
-			sceneInit( audioListener );
+			sceneInit(audioListener);
+			enableUI();
 		}
 
 		if ( loadingCounter < 0 ) {
@@ -271,13 +327,20 @@ function init()
 	}, 50);
 }
 
+function enableUI() {
+
+    var UI = document.getElementById("UI");
+
+    UI.style.visibility = 'visible';
+}
+
 
 function sceneInit(audioListener) {
 
 	//Create scenes
 	baseScene = new THREE.Scene(); 
 
-	baseScene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
+	//baseScene.fog = new THREE.Fog( 0xffffff, 0.5, 1000 );
 
 	////////////////////////////////////////////
 	/*                CAMERAS                 */
@@ -331,13 +394,13 @@ function sceneInit(audioListener) {
 
 	currentScene = homeScene;
 
-	createMap(HOME_SIZE);
+	createMap(HOME_SIZE, true);
 	render();
 
 }
 
 
-function createMap(n) {
+function createMap(n, isHome) {
 
 	//Lay tiles for an n*n game board 
 
@@ -374,7 +437,6 @@ function createMap(n) {
 		}
 	}
 
-
 	var beanX = Math.floor( Math.random() * n);
 
 	currentScene.map[n + 2 + beanX] = 4;
@@ -382,7 +444,6 @@ function createMap(n) {
 	var jackX = Math.floor( Math.random() * n);
 
 	currentScene.map[n * (n + 2) + jackX] = -1;
-
 
 	for (var j = 0; j < n; j++)
 	{
@@ -393,6 +454,7 @@ function createMap(n) {
 
 			if (val == -1) {
 				val = 0;
+				currentScene.map[(j + 1) * (n + 2) + i] = 0;
 				lumberjack.position.set((i - n/2 ) * 10, 4.5, (j - n/2 ) * 10);
 
 			}
@@ -400,6 +462,64 @@ function createMap(n) {
 			layTile(i, j, val, n);
 
 		}
+	}
+
+	//SEA
+
+	if (isHome) {
+
+
+		//currentScene.seaMirrorCamera = new THREE.CubeCamera( 0.01, 1000, 512 );
+		//currentScene.add( currentScene.seaMirrorCamera );
+
+		//var seaMirrorMaterial = new THREE.MeshBasicMaterial( { envMap: currentScene.seaMirrorCamera.renderTarget.texture } );
+
+		var seaGeo = new THREE.PlaneGeometry(1000, 1000);
+		var seaMat = new THREE.MeshBasicMaterial( {color: 0x0078ff, side: THREE.DoubleSide} );
+		sea = new THREE.Mesh( seaGeo, seaMat );
+		sea.rotation.x = Math.PI/2;
+		currentScene.add(sea);
+
+		var x = 10 * n/4;
+
+		var z = (n/2) * 10;
+
+		var boat = boatPrefab.clone();
+		boat.position.set(x, 2, z);
+
+		currentScene.add(boat);
+	}
+
+
+	//CLOUDS
+
+	var numClouds = 2 + Math.floor(Math.random() * (n - 2));
+
+	var vx = Math.random();
+
+	var vz = Math.random();
+
+	for (var i = 0; i < numClouds; i++) {
+		
+		var x = Math.floor(Math.random() * n) * 10;
+
+		var y = 10 + n * 2;
+
+		var z = Math.floor(Math.random() * n) * 10;
+
+		if (!isHome) {
+			y = -5;
+		}
+
+		var newCloud = cloudPrefab.clone();
+
+		newCloud.position.set( x, y, z );
+
+		newCloud.vel = [vx, 0, vz];
+
+		currentScene.add(newCloud);
+
+		clouds.push(newCloud);
 	}
 
 	//circle for debugging collisions
@@ -533,7 +653,8 @@ function render()
 
 function update(dt) {
 
-	//light movement ( daytime / nighttime )
+	//light movement ( daytime / nighttime 
+
 	var timeStamp = Date.now() / 10000;
 
 	var lightx = 0;
@@ -542,10 +663,16 @@ function update(dt) {
 
 	directionalLight.position.set( currentScene.MAP_SIZE*lightx, currentScene.MAP_SIZE*lighty, currentScene.MAP_SIZE*lightz );
 
-
 	moveLumberJack(dt);
 
 	debugLines.position.set(lumberjack.position.x, lumberjack.position.y, lumberjack.position.z  );
+
+	for (var i = 0; i < clouds.length; i++) {
+		
+		clouds[i].position.x += clouds[i].vel[0] * dt;
+		clouds[i].position.z += clouds[i].vel[2] * dt;
+
+	}
 
 	//Update stats
 	document.getElementById("moneyDISP").innerHTML = money;
@@ -618,8 +745,8 @@ function moveLumberJack(dt) {
 
 	//check collisions with neighboring boxes
 
-	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0])/10);
-	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2])/10);
+	var newx = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.x + lumberjack.radius + lumberjack.vel[0] * dt)/10);
+	var newz = currentScene.MAP_SIZE/2 + Math.floor((lumberjack.position.z + lumberjack.radius + lumberjack.vel[2] * dt)/10);
 
 	//console.log (map[newz * currentScene.MAP_SIZE + newx]);
 	
@@ -741,7 +868,7 @@ function onKeyDown(event)
     	backgroundMusic.pause();
     	mute = true;
     } 
-    else if(keyCode == 48 && mute == true) 
+    else if (keyCode == 48 && mute == true) 
     {
     	backgroundMusic.play();
     	mute = false;
@@ -749,20 +876,19 @@ function onKeyDown(event)
 
 
     //Toggle Menu
-    var ui = document.getElementById("menuIMG");
+    var menu = document.getElementById("menuIMG");
 
     //Push M
 	if (keyCode == 77 && menuOpen) 
     {
-    	ui.style.display = 'none';
+    	menu.style.display = 'none';
     	menuOpen = false;
     } 
     else if(keyCode == 77 && !menuOpen) 
     {
-    	ui.style.display = 'inline';
+    	menu.style.display = 'inline';
     	menuOpen = true;
     }
-
 
 }
 
@@ -773,30 +899,20 @@ function JackControls () {
 	//Lumberjack movement speed 
 	var speed = 5;
 
-    //Push W
-	if (keymap[87]) 
-    {
+	if (keymap[87]) {
+    	//Forward
     	lumberjack.rotation.y = Math.PI;
         lumberjack.vel[2] -= speed;
-    } 
-    
-    //Push A
-	if (keymap[65]) 
-    {
+    } else if (keymap[65]) {
+    	//Left
         lumberjack.rotation.y = - Math.PI / 2;
         lumberjack.vel[0] -= speed;
-    } 
-
-    //Push S
-	if (keymap[83]) 
-    {
+    } else if (keymap[83]) {
+    	//Back
     	lumberjack.rotation.y = 0;
         lumberjack.vel[2] += speed;
-    } 
-
-    //Push D
-	if (keymap[68]) 
-    {
+    } else if (keymap[68]) {
+    	//Right
     	lumberjack.rotation.y = + Math.PI / 2;
         lumberjack.vel[0] += speed;
     } 
