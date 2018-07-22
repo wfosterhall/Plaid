@@ -27,7 +27,7 @@ var zoom = 0.1;
 
 //change map size here, camera will update automatically
 const HOME_SIZE = 4;
-const MAX_SPEED = 5;
+const MAX_SPEED = 4;
 
 
 //Preloaded objects
@@ -55,6 +55,8 @@ var money = 0;
 var wood = 0;
 var level = 0;
 
+var maxLevel = 0;
+
 var prevtime = 0;
 
 var keymap = {};
@@ -66,6 +68,10 @@ var loadingCounter = 0;
 const LOAD_MAX = 8; //change for how many objects we have to load
 
 var debugLines;
+
+var MOVES_MAX = 15;
+
+var numMoves = MOVES_MAX;
 
 
 init();
@@ -498,7 +504,7 @@ function createMap(n, isHome) {
 
 	//CLOUDS
 
-	var numClouds = 2 + Math.floor(Math.random() * (n - 2));
+	var numClouds = 3 + Math.floor(Math.random() * n);
 
 	var vx = 0.5 * Math.random();
 
@@ -549,7 +555,7 @@ function createMap(n, isHome) {
 
 	debugLines.rotation.x = Math.PI/2;
 
-	currentScene.add(debugLines);
+	//currentScene.add(debugLines);
 
 }
 
@@ -694,8 +700,10 @@ function update(dt) {
 	//Update stats
 	document.getElementById("moneyDISP").innerHTML = money;
 	document.getElementById("woodDISP").innerHTML = wood;
+	document.getElementById("highscoreDISP").innerHTML = "level " + maxLevel;
+	document.getElementById("movesDISP").innerHTML = numMoves;
 	
-	if(level == 0)
+	if (level == 0)
 	{
 		document.getElementById("levelDISP").innerHTML = "home";
 		level = 0;
@@ -720,14 +728,28 @@ function moveLumberJack(dt) {
 		lumberjack.isFalling = true;
 	}
 
+		//place constraints
+
+	if (lumberjack.vel[0] > MAX_SPEED)
+		lumberjack.vel[0] = MAX_SPEED;
+
+	if (lumberjack.vel[0] < - MAX_SPEED)
+		lumberjack.vel[0] = - MAX_SPEED;
+
+	if (lumberjack.vel[2] > MAX_SPEED)
+		lumberjack.vel[2] = MAX_SPEED;
+
+	if (lumberjack.vel[2] < - MAX_SPEED)
+		lumberjack.vel[2] = - MAX_SPEED;
+
 	//dampen movement
 
 	if (lumberjack.vel[0] > 0) {
-		lumberjack.vel[0] -= 0.5;
+		lumberjack.vel[0] -= 5 * dt;
 	}
 	
 	if (lumberjack.vel[0] < 0) {
-		lumberjack.vel[0] += 0.5;
+		lumberjack.vel[0] += 5 * dt;
 	}
 
 
@@ -744,19 +766,7 @@ function moveLumberJack(dt) {
 		lumberjack.vel[1] -= 10 * dt; 
 	}
 
-	//place constraints
 
-	if (lumberjack.vel[0] > MAX_SPEED)
-		lumberjack.vel[0] = MAX_SPEED;
-
-	if (lumberjack.vel[0] < - MAX_SPEED)
-		lumberjack.vel[0] = -MAX_SPEED;
-
-	if (lumberjack.vel[2] > MAX_SPEED)
-		lumberjack.vel[2] = MAX_SPEED;
-
-	if (lumberjack.vel[2] < - MAX_SPEED)
-		lumberjack.vel[2] = -MAX_SPEED;
 
 
 
@@ -799,9 +809,11 @@ function moveLumberJack(dt) {
 
 		lumberjack = currentScene.getObjectByName("jack");
 
-		lumberjack.position.set(0, 4.5, ( currentScene.MAP_SIZE/2 - 1 )* 10);
+		lumberjack.position.set( ( Math.random() * currentScene.MAP_SIZE - currentScene.MAP_SIZE/2 ) * 10, 4.5, ( currentScene.MAP_SIZE/2 - 1 )* 10);
 
 		level = 0;
+
+		numMoves = MOVES_MAX;
 
 	}
 
@@ -1002,20 +1014,25 @@ function interact() {
 	//remove collision
 	if (tile == 1) {
 		//interacting with a tree
-		currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
 
-		//remove tree
-		for (var i = currentScene.trees.length - 1; i >= 0; i--) {
-			if (currentScene.trees[i].mapX == posX && currentScene.trees[i].mapZ == posZ)
-				currentScene.remove(currentScene.trees[i]);
+		if (numMoves > 0) {
+			currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
+
+			//remove tree
+			for (var i = currentScene.trees.length - 1; i >= 0; i--) {
+				if (currentScene.trees[i].mapX == posX && currentScene.trees[i].mapZ == posZ)
+					currentScene.remove(currentScene.trees[i]);
+			}
+
+			//add wood
+			wood++;
+
+			//play sound
+			chopSound.play();
+
+			if (currentScene != homeScene)
+				numMoves--;
 		}
-
-		//add wood
-		wood++;
-
-		//play sound
-		chopSound.play();
-
 	}
 
 	if (tile == 2) {
@@ -1026,7 +1043,7 @@ function interact() {
 		//tile is $$$
 		//inc $$$
 		money++;
-		
+
 		currentScene.map[(posZ + 1) * (currentScene.MAP_SIZE + 2) + posX] = 0;
 	}
 
@@ -1040,6 +1057,9 @@ function interact() {
 		var mapSize = Math.floor(4 + level * 2 + - 2 *  Math.floor(Math.random() * (level - 1)));
 		createMap(mapSize);
 		level++;
+
+		if (level > maxLevel)
+			maxLevel = level;
 
 	}
 
